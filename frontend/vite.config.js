@@ -3,6 +3,21 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    assetsInlineLimit: 0, // Non inline-are i font, mantenerli come file separati
+    rollupOptions: {
+      output: {
+        assetFileNames: (assetInfo) => {
+          // Mantieni i font nella cartella assets
+          let extType = assetInfo.name.split('.').at(1);
+          if (/woff|woff2|ttf|eot/.test(extType)) {
+            return `assets/fonts/[name]-[hash][extname]`;
+          }
+          return `assets/[name]-[hash][extname]`;
+        },
+      },
+    },
+  },
   server: {
     port: 3000,
     proxy: {
