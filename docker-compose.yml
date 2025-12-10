@@ -1,0 +1,133 @@
+version: "3"
+
+
+volumes:
+  ckan_storage:
+  pg_data:
+  solr_data:
+
+services:
+
+  frontend:
+    container_name: ${FRONTEND_CONTAINER_NAME}
+    build:
+      context: frontend/
+      dockerfile: Dockerfile
+    networks:
+      - webnet
+    restart: unless-stopped
+    environment:
+      - VITE_CKAN_BASE_URL=/api/3/action
+      - VITE_ACCESSIBILITY_STATEMENT_URL=${ACCESSIBILITY_STATEMENT_URL}
+
+  nginx:
+    container_name: ${NGINX_CONTAINER_NAME}
+    build:
+      context: nginx/
+      dockerfile: Dockerfile
+    networks:
+      - webnet
+      - ckannet
+    depends_on:
+      - ckan
+      - frontend
+    ports:
+      - "0.0.0.0:8443:8443"
+      - "0.0.0.0:${FRONTEND_PUBLIC_PORT}:3000"
+
+  ckan:
+    container_name: ${CKAN_CONTAINER_NAME}
+    build:
+      context: ckan/
+      dockerfile: Dockerfile
+      args:
+        - TZ=${TZ}
+    networks:
+      - ckannet
+      - dbnet
+      - solrnet
+      - redisnet
+    env_file:
+      - .env
+    environment:
+      - FRONTEND_PUBLIC_URL=${FRONTEND_PUBLIC_URL}
+      - CKAN_ADMIN_URL=${CKAN_ADMIN_URL}
+    depends_on:
+      db:
+        condition: service_healthy
+      solr:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ckan_storage:/var/lib/ckan
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:5000"]
+
+  datapusher:
+    container_name: ${DATAPUSHER_CONTAINER_NAME}
+    networks:
+      - ckannet
+      - dbnet
+    environment:
+      - DATAPUSHER_SSL_VERIFY=False
+      - DATAPUSHER_MAX_CONTENT_LENGTH=10485760
+    image: ckan/ckan-base-datapusher:${DATAPUSHER_VERSION}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:8800"]
+
+  db:
+    container_name: ${POSTGRESQL_CONTAINER_NAME}
+    build:
+      context: postgresql/
+    networks:
+      - dbnet
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+      - CKAN_DB_USER
+      - CKAN_DB_PASSWORD
+      - CKAN_DB
+      - DATASTORE_READONLY_USER
+      - DATASTORE_READONLY_PASSWORD
+      - DATASTORE_DB
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
+
+  solr:
+    container_name: ${SOLR_CONTAINER_NAME}
+    networks:
+      - solrnet
+    build:
+      context: solr/
+      dockerfile: Dockerfile
+    volumes:
+      - solr_data:/var/solr
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:8983/solr/"]
+
+  redis:
+    container_name: ${REDIS_CONTAINER_NAME}
+    image: redis:${REDIS_VERSION}
+    networks:
+      - redisnet
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-e", "QUIT"]
+
+networks:
+  webnet:
+  ckannet:
+  solrnet:
+    internal: true
+  dbnet:
+    internal: true
+  redisnet:
+    internal: true
