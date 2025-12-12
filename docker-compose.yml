@@ -32,8 +32,11 @@ services:
       - ckan
       - frontend
     ports:
-      - "0.0.0.0:8443:8443"
-      - "0.0.0.0:${FRONTEND_PUBLIC_PORT}:3000"
+      - "0.0.0.0:${FRONTEND_PUBLIC_PORT}:${FRONTEND_PUBLIC_PORT}"
+      - "127.0.0.1:${CKAN_ADMIN_PORT}:${CKAN_ADMIN_PORT}"
+    environment:
+      - CKAN_ADMIN_PORT=${CKAN_ADMIN_PORT}
+      - FRONTEND_PUBLIC_PORT=${FRONTEND_PUBLIC_PORT}
 
   ckan:
     container_name: ${CKAN_CONTAINER_NAME}
