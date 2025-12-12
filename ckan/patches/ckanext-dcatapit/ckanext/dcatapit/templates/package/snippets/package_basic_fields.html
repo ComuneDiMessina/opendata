@@ -93,15 +93,15 @@
          data-module-form-container="#dataset-edit">
     </div>
     <script type="text/javascript">
-        $(document).ready(function() {
+        window.addEventListener('load', function() {
             console.log('[DCATAPIT] Manual initialization starting');
-            var element = $('#dcatapit-form-trigger');
-            if (element.length && typeof ckan !== 'undefined' && ckan.module) {
+            var element = document.getElementById('dcatapit-form-trigger');
+            if (element && typeof ckan !== 'undefined' && ckan.module) {
                 console.log('[DCATAPIT] Initializing module manually');
-                ckan.module.initializeElement(element[0]);
+                ckan.module.initializeElement(element);
             } else {
                 console.log('[DCATAPIT] Cannot initialize:', {
-                    elementFound: element.length > 0,
+                    elementFound: element !== null,
                     ckanAvailable: typeof ckan !== 'undefined',
                     moduleAvailable: typeof ckan !== 'undefined' && typeof ckan.module !== 'undefined'
                 });
