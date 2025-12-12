@@ -33,7 +33,7 @@ services:
       - frontend
     ports:
       - "0.0.0.0:${FRONTEND_PUBLIC_PORT}:${FRONTEND_PUBLIC_PORT}"
-      - "127.0.0.1:${CKAN_ADMIN_PORT}:${CKAN_ADMIN_PORT}"
+      - "0.0.0.0:${CKAN_ADMIN_PORT}:${CKAN_ADMIN_PORT}"
     environment:
       - CKAN_ADMIN_PORT=${CKAN_ADMIN_PORT}
       - FRONTEND_PUBLIC_PORT=${FRONTEND_PUBLIC_PORT}
