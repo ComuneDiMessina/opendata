@@ -692,14 +692,21 @@ ckan.module('dcatapit-theme', function($){
 ckan.module('dcatapit-edit-form', function($){
     var edit_form = {
         initialize: function(){
+            console.log('[DCATAPIT] Module initialize called');
+            console.log('[DCATAPIT] this.options:', this.options);
+            console.log('[DCATAPIT] this.el:', this.el);
             if (this.has_errors()){
                 console.log('form with errors');
             }
             this.el = $(this.el);
             $.proxyAll(this, /_on/);
+            console.log('[DCATAPIT] About to load settings from:', this.options.settingsContainer);
             this.settings = this.load_settings(this.options.settingsContainer);
+            console.log('[DCATAPIT] Settings loaded, tabs count:', this.settings.tabs ? this.settings.tabs.length : 0);
             this.container = $(this.options.formContainer);
+            console.log('[DCATAPIT] Container found:', this.container.length, 'ID:', this.options.formContainer);
             this.init_tabs(this.settings, this.container);
+            console.log('[DCATAPIT] init_tabs completed');
         },
 
         get_errors: function(){
