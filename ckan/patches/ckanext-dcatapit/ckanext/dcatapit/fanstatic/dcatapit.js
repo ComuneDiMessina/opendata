@@ -763,55 +763,6 @@ ckan.module('dcatapit-edit-form', function($){
             this.build_nav(tabs_list.find('li'), tabs_container.find('.ui-tabs-panel'));
             this.handle_errors(tabs_list.find('li'), tabs_container.find('.ui-tabs-panel'), container);
             container.prepend($('ol.stages'));
-            
-            // Re-initialize event handlers after moving fields to tabs
-            console.log('[DCATAPIT] Re-attaching event handlers after tab initialization');
-            this.reinitialize_handlers(tabs_container);
-        },
-        
-        reinitialize_handlers: function(container){
-            var that = this;
-            // Find all .add_new_container elements and re-attach handlers
-            $('.add_new_container', container).each(function(idx, elm){
-                var add_with_list = $($(elm).data("add-with"));
-                
-                add_with_list.each(function(ydx, add_with_elm){
-                    var add_with = $(add_with_elm);
-                    var tmpl = $($(elm).data('add-template'), $(elm).parent());
-                    
-                    // Remove old handler marker
-                    add_with.data('has-container-cb', false);
-                    // Unbind old handlers
-                    add_with.off('click');
-                    
-                    // Re-attach handler
-                    var h = function(evt){
-                        var t = that.add_row_generic(tmpl, elm, []);
-                    }
-                    add_with.data('has-container-cb', true);
-                    add_with.click(h);
-                    console.log('[DCATAPIT] Reattached handler for:', add_with.attr('class'));
-                });
-            });
-            
-            // Re-attach remove handlers
-            $('.remove', container).off('click').click(function(evt){
-                var elm = $(evt.delegateTarget);
-                if (elm.data('remove-parent') !== undefined){
-                    var out = elm.parents(elm.data('remove-parent'));
-                } else {
-                    var out = elm.parent();
-                }
-                out.remove();
-            });
-        },
-        
-        add_row_generic: function(template, container, values){
-            var t = template.clone().removeClass('template');
-            $(container).append(t[0]);
-            // Re-attach handlers to the new row
-            this.reinitialize_handlers(t);
-            return t;
         },
 
         handle_errors: function(tabs, panels, main_c){

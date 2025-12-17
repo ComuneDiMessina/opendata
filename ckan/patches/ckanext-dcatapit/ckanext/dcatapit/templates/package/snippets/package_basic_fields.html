@@ -87,27 +87,11 @@
     {% asset 'ckanext-dcatapit/dcatapit_script' %}
 	{% snippet 'snippets/dcatapit_form_fields.html', data=data, errors=errors, schema_fields=pkg_fields %}
     {% if h.dcatapit_enable_form_tabs() %}
-    <div id="dcatapit-form-trigger" class="dcatapit-form"
+    <div class="dcatapit-form"
          data-module="dcatapit-edit-form"
          data-module-settings-container="#dcatapit-edit-form-settings"
          data-module-form-container="#dataset-edit">
     </div>
-    <script type="text/javascript">
-        window.addEventListener('load', function() {
-            console.log('[DCATAPIT] Manual initialization starting');
-            var element = document.getElementById('dcatapit-form-trigger');
-            if (element && typeof ckan !== 'undefined' && ckan.module) {
-                console.log('[DCATAPIT] Initializing module manually');
-                ckan.module.initializeElement(element);
-            } else {
-                console.log('[DCATAPIT] Cannot initialize:', {
-                    elementFound: element !== null,
-                    ckanAvailable: typeof ckan !== 'undefined',
-                    moduleAvailable: typeof ckan !== 'undefined' && typeof ckan.module !== 'undefined'
-                });
-            }
-        });
-    </script>
     {% endif %}
     {% endblock %}
 {% endblock %}

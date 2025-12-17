@@ -48,7 +48,7 @@ COPY patches/model_dictize.py ${APP_DIR}/src/ckan/ckan/lib/dictization/model_dic
 COPY patches/base.py ${APP_DIR}/src/ckan/ckan/lib/base.py
 
 #patch per landing page . elimina il campo Origine nel form di editing del dataset
-#COPY patches/package_metadata_fields.html ${APP_DIR}/src/ckan/ckan/templates/package/snippets/package_metadata_fields.html
+COPY patches/package_metadata_fields.html ${APP_DIR}/src/ckan/ckan/templates/package/snippets/package_metadata_fields.html
 
 #COPY patches/package_basic_fields.html ${APP_DIR}/src/ckan/ckan/templates/package/snippets
 #COPY patches/jeoquery.js ${APP_DIR}/src/ckanext-dcatapit/ckanext/dcatapit/fanstatic/jeoquery.js
