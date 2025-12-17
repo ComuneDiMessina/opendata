@@ -132,6 +132,9 @@ server {
         add_header 'Access-Control-Allow-Origin' '*' always;
         add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS' always;
         add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range' always;
+        sub_filter_types *;
+        sub_filter_once off;
+        sub_filter "http://192.168.76.95:8443" "https://dati.comune.messina.it";
     }
 
     # Proxy to CKAN API
