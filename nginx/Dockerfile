@@ -12,13 +12,10 @@ COPY setup/default.conf.template ${NGINX_DIR}/templates/
 
 RUN mkdir -p ${NGINX_DIR}/certs
 
+# Copia i certificati SSL reali
+COPY setup/ckan-local.crt ${NGINX_DIR}/certs/ckan-local.crt
+COPY setup/ckan-local.key ${NGINX_DIR}/certs/ckan-local.key
+
 ENTRYPOINT \
-  openssl req \
-    -subj '/C=DE/ST=Berlin/L=Berlin/O=None/CN=localhost' \
-    -x509 -newkey rsa:4096 \
-    -nodes -keyout /etc/nginx/ssl/default_key.pem \
-    -keyout ${NGINX_DIR}/certs/ckan-local.key \
-    -out ${NGINX_DIR}/certs/ckan-local.crt \
-    -days 365 && \
   envsubst '${CKAN_ADMIN_PORT} ${FRONTEND_PUBLIC_PORT}' < ${NGINX_DIR}/templates/default.conf.template > ${NGINX_DIR}/conf.d/default.conf && \
   nginx -g 'daemon off;'
