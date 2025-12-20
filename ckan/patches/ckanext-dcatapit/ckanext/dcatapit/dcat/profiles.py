@@ -1767,7 +1767,9 @@ class ItalianDCATAPProfile(RDFProfile):
 
         # Replace homepage
         # Try to avoid to have the Catalog URIRef identical to the homepage URI
+        # Remove both possible homepage values from euro_dcat_ap profile
         g.remove((catalog_ref, FOAF.homepage, URIRef(config.get('ckan.site_url'))))
+        g.remove((catalog_ref, FOAF.homepage, URIRef(config.get('ckan.site_url') + '/#')))
         g.add((catalog_ref, FOAF.homepage, URIRef(catalog_uri() + '/#')))
  #        g.add((catalog_ref, FOAF.homepage, URIRef(catalog_uri())))
 
