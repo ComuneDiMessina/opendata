@@ -1359,6 +1359,9 @@ class ItalianDCATAPProfile(RDFProfile):
               distribution = distribution.replace(PREF_LANDING,"http://aperto.comune.torino.it/")
               distribution=URIRef(distribution)
             if 'c_f158' in holder_id:
+              # Sostituisci sia il vecchio dominio che PREF_LANDING
+              distribution = distribution.replace("http://opendata.comune.messina.it","https://dati.comune.messina.it")
+              distribution = distribution.replace("https://opendata.comune.messina.it","https://dati.comune.messina.it")
               distribution = distribution.replace(PREF_LANDING,"https://dati.comune.messina.it")
               distribution=URIRef(distribution)
             if 'm_lps' in holder_id:
