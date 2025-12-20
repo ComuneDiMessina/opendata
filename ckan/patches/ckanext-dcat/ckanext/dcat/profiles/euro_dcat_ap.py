@@ -661,10 +661,8 @@ class EuropeanDCATAPProfile(RDFProfile):
             if resource_dict.get('access_url'):
              if 'view-dataset' in resource_dict.get('access_url'):
                resource_dict['access_url']=resource_dict['url']
-# PATCH MOLTO DELICATA: SOSTITUISCE accessURL con la url della risorsa del CKAN e inserisce in downloadURL (campo opzionale per il DCAT)  la vecchia acce>
             if dataset_dict.get('id'):
-               # PREF_LANDING è già pulito dalla porta all'import del modulo
-               resource_dict['access_url']=PREF_LANDING+'/dataset/'+dataset_dict['id']+'/resource/'+resource_dict['id']
+               resource_dict['access_url']=PREF_LANDING+'/risorsa/'+resource_dict['id']
             if resource_dict.get('license'):
              resource_dict['license']=resource_dict['license'].replace('https://w3id.org/italia/controlled-vocabulary/licences/C1_Unknown','http://creativecommons.org/licenses/by/4.0/')
              resource_dict['license']=resource_dict['license'].replace('https://w3id.org/italia/controlled-vocabulary/licences/B11_CCBYNC40','http://creativecommons.org/licenses/by/4.0/')
