@@ -1358,6 +1358,9 @@ class ItalianDCATAPProfile(RDFProfile):
             if '00514490010' in holder_id:
               distribution = distribution.replace(PREF_LANDING,"http://aperto.comune.torino.it/")
               distribution=URIRef(distribution)
+            if 'c_f158' in holder_id:
+              distribution = distribution.replace(PREF_LANDING,"https://dati.comune.messina.it")
+              distribution=URIRef(distribution)
             if 'm_lps' in holder_id:
               distribution = distribution.replace(PREF_LANDING,"https://dati.regione.marche.it/")
               distribution=URIRef(distribution)
