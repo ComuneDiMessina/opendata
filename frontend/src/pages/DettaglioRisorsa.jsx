@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { 
   Card, CardBody, CardTitle, CardText, 
   Table, Button, Badge, Icon, 
@@ -134,7 +134,7 @@ export default function DettaglioRisorsa() {
   const isGeoJSON = resource?.format?.toLowerCase() === 'geojson' || 
                     (resource?.format?.toLowerCase() === 'json' && resource?.url?.includes('geojson'));
   
-  if (!data && !isGeoJSON) return <Container><div className="alert alert-warning mt-4">Risorsa non trovata o non tabellare.</div></Container>;
+  const hasDatastoreData = data && !isGeoJSON;
 
   return (
     <Container className="my-4">
@@ -155,12 +155,12 @@ export default function DettaglioRisorsa() {
                 <Badge 
                   color="secondary" 
                   className="text-uppercase"
-                  style={{ cursor: data ? 'pointer' : 'default' }}
-                  onClick={() => data && document.getElementById('export-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                  style={{ cursor: hasDatastoreData ? 'pointer' : 'default' }}
+                  onClick={() => hasDatastoreData && document.getElementById('export-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
                 >
                   {resource?.format || 'N/D'}
                 </Badge>
-                {data && (
+                {hasDatastoreData && (
                   <>
                     <Badge 
                       color="primary" 
@@ -225,7 +225,7 @@ export default function DettaglioRisorsa() {
       {/* Sezioni */}
       <Row>
         <Col lg={12}>
-          {data && (
+          {hasDatastoreData && (
             <>
               {/* Tabella Dati */}
               <section className="mb-5">
@@ -377,7 +377,7 @@ export default function DettaglioRisorsa() {
 
               </section>
 
-              {/* Info Risorsa */}
+              {/* Info Risorsa (per risorse con datastore) */}
               <section className="mb-5">
                 <h5 className="mb-3">
                   <Icon icon="it-info-circle" size="sm" className="me-2" />
@@ -898,6 +898,175 @@ export default function DettaglioRisorsa() {
                   </CardBody>
                 </Card>
               </section>
+            </>
+          )}
+
+          {/* Metadati per risorse senza datastore */}
+          {!hasDatastoreData && resource && (
+            <>
+              {/* Metadati Risorsa */}
+              <section className="mb-5">
+                <h5 className="mb-3">
+                  <Icon icon="it-info-circle" size="sm" className="me-2" />
+                  Informazioni
+                </h5>
+                
+                <Card className="shadow-sm border-0">
+                  <CardBody className="p-4">
+                    <Row className="g-4">
+                      <Col md={6}>
+                        <div className="d-flex align-items-start">
+                          <Icon icon="it-password-visible" size="sm" color="primary" className="me-3 mt-1" />
+                          <div className="flex-grow-1">
+                            <div className="text-uppercase text-muted fw-semibold mb-2" style={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
+                              ID Risorsa
+                            </div>
+                            <code className="d-block bg-light p-2 rounded text-break small">{id}</code>
+                          </div>
+                        </div>
+                      </Col>
+                      <Col md={6}>
+                        <div className="d-flex align-items-start">
+                          <Icon icon="it-file" size="sm" color="primary" className="me-3 mt-1" />
+                          <div className="flex-grow-1">
+                            <div className="text-uppercase text-muted fw-semibold mb-2" style={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
+                              Formato
+                            </div>
+                            <Badge color="secondary" className="text-uppercase">
+                              {resource.format || 'N/D'}
+                            </Badge>
+                          </div>
+                        </div>
+                      </Col>
+                      {resource.created && (
+                        <Col md={6}>
+                          <div className="d-flex align-items-start">
+                            <Icon icon="it-calendar" size="sm" color="primary" className="me-3 mt-1" />
+                            <div className="flex-grow-1">
+                              <div className="text-uppercase text-muted fw-semibold mb-2" style={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
+                                Data Creazione
+                              </div>
+                              <div className="small">{new Date(resource.created).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                            </div>
+                          </div>
+                        </Col>
+                      )}
+                      {resource.last_modified && (
+                        <Col md={6}>
+                          <div className="d-flex align-items-start">
+                            <Icon icon="it-refresh" size="sm" color="primary" className="me-3 mt-1" />
+                            <div className="flex-grow-1">
+                              <div className="text-uppercase text-muted fw-semibold mb-2" style={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
+                                Ultima Modifica
+                              </div>
+                              <div className="small">{new Date(resource.last_modified).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                            </div>
+                          </div>
+                        </Col>
+                      )}
+                      {resource.size && (
+                        <Col md={6}>
+                          <div className="d-flex align-items-start">
+                            <Icon icon="it-card" size="sm" color="primary" className="me-3 mt-1" />
+                            <div className="flex-grow-1">
+                              <div className="text-uppercase text-muted fw-semibold mb-2" style={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
+                                Dimensione
+                              </div>
+                              <div className="small">{(resource.size / 1024).toFixed(2)} KB</div>
+                            </div>
+                          </div>
+                        </Col>
+                      )}
+                      {resource.mimetype && (
+                        <Col md={6}>
+                          <div className="d-flex align-items-start">
+                            <Icon icon="it-code-circle" size="sm" color="primary" className="me-3 mt-1" />
+                            <div className="flex-grow-1">
+                              <div className="text-uppercase text-muted fw-semibold mb-2" style={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
+                                MIME Type
+                              </div>
+                              <code className="small">{resource.mimetype}</code>
+                            </div>
+                          </div>
+                        </Col>
+                      )}
+                    </Row>
+                  </CardBody>
+                </Card>
+              </section>
+
+              {/* Download */}
+              <section className="mb-5">
+                <h5 className="mb-3">
+                  <Icon icon="it-download" size="sm" className="me-2" />
+                  Download
+                </h5>
+                
+                <Row className="g-3">
+                  <Col md={6} lg={3}>
+                    <Card className="shadow-sm border-0 h-100">
+                      <CardBody className="p-4">
+                        <div className="d-flex align-items-start mb-3">
+                          <Icon icon="it-file" size="sm" color="primary" className="me-3 mt-1" />
+                          <div className="flex-grow-1">
+                            <CardTitle tag="h6" className="fw-bold mb-2">{resource.format || 'File'}</CardTitle>
+                            <CardText className="small text-muted mb-3">
+                              Scarica il file nel formato originale
+                            </CardText>
+                          </div>
+                        </div>
+                        <div className="d-flex flex-column gap-2">
+                          <a 
+                            href={resource.url}
+                            className="btn btn-primary w-100"
+                            target="_blank" 
+                            rel="noreferrer"
+                          >
+                            <Icon icon="it-download" size="sm" color="white" className="me-2" aria-hidden="true" />
+                            Scarica risorsa
+                          </a>
+                          <Button 
+                            color="primary" 
+                            outline 
+                            size="sm"
+                            className="w-100"
+                            onClick={() => {
+                              navigator.clipboard.writeText(resource.url);
+                              notify('URL copiato!', 'L\'URL della risorsa è stato copiato negli appunti.', { state: 'success', duration: 3000 });
+                            }}
+                          >
+                            <Icon icon="it-copy" size="sm" className="me-2" />
+                            Copia URL
+                          </Button>
+                        </div>
+                      </CardBody>
+                    </Card>
+                  </Col>
+                </Row>
+              </section>
+
+              {/* Torna al Dataset */}
+              {dataset && (
+                <section className="mb-5">
+                  <Card className="shadow-sm border-0 bg-light">
+                    <CardBody className="p-4">
+                      <div className="d-flex align-items-center justify-content-between">
+                        <div>
+                          <h6 className="mb-2">Dataset di appartenenza</h6>
+                          <p className="text-muted mb-0 small">{dataset.title}</p>
+                        </div>
+                        <Link 
+                          to={`/dataset/${dataset.id}`} 
+                          className="btn btn-outline-primary"
+                        >
+                          <Icon icon="it-arrow-left" size="sm" color="primary" className="me-2" />
+                          Torna al dataset
+                        </Link>
+                      </div>
+                    </CardBody>
+                  </Card>
+                </section>
+              )}
             </>
           )}
         </Col>

@@ -364,13 +364,21 @@ export default function DettaglioDataset() {
                       Copia URL
                     </button>
                     
-                    {res.datastore_active && (
+                    {res.datastore_active ? (
                       <Link 
                         to={`/risorsa/${res.id}`} 
                         className="btn btn-outline-primary btn-sm"
                       >
                         <Icon icon="it-chart-line" size="sm" color="primary" className="me-2" />
                         Visualizza e analizza
+                      </Link>
+                    ) : (
+                      <Link 
+                        to={`/risorsa/${res.id}`} 
+                        className="btn btn-outline-primary btn-sm"
+                      >
+                        <Icon icon="it-info-circle" size="sm" color="primary" className="me-2" />
+                        Dettagli
                       </Link>
                     )}
                   </div>
