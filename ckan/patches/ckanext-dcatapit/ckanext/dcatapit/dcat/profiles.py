@@ -960,7 +960,7 @@ class ItalianDCATAPProfile(RDFProfile):
             landing_page_uri=landing_page_uri.replace(PREF_LANDING,"http://dati.comune.matera.it")
          if 'c_f158' in holder_id:
             landing_page_uri = dataset_uri(dataset_dict)
-            landing_page_uri=landing_page_uri.replace(PREF_LANDING,"https://opendata.comune.messina.it")
+            landing_page_uri=landing_page_uri.replace(PREF_LANDING,"https://dati.comune.messina.it")
          if 'c_f205' in holder_id:
             landing_page_uri = dataset_uri(dataset_dict)
             landing_page_uri=landing_page_uri.replace(PREF_LANDING,"https://dati.comune.milano.it")
