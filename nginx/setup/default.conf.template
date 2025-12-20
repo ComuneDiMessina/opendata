@@ -2,7 +2,7 @@
 server {
     listen       ${CKAN_ADMIN_PORT} ssl;
     listen  [::]:${CKAN_ADMIN_PORT} ssl;
-    server_name  localhost 192.168.76.95;
+    server_name  dati.comune.messina.it localhost;
     ssl_certificate /etc/nginx/certs/ckan-local.crt;
     ssl_certificate_key /etc/nginx/certs/ckan-local.key;
     
@@ -94,6 +94,12 @@ server {
         proxy_read_timeout 300;
         proxy_connect_timeout 300;
         proxy_send_timeout 300;
+        
+        # Sostituisci eventuali URL con IP nelle risposte
+        sub_filter_types *;
+        sub_filter_once off;
+        sub_filter "http://192.168.76.95:8443" "https://dati.comune.messina.it:8443";
+        sub_filter "https://192.168.76.95:8443" "https://dati.comune.messina.it:8443";
     }
 }
 
@@ -135,6 +141,7 @@ server {
         sub_filter_types *;
         sub_filter_once off;
         sub_filter "http://192.168.76.95:8443" "https://dati.comune.messina.it";
+        sub_filter "https://192.168.76.95:8443" "https://dati.comune.messina.it";
     }
 
     # Proxy to CKAN API
