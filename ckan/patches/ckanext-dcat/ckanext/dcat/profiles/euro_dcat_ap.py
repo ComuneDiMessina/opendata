@@ -39,7 +39,13 @@ config = toolkit.config
 
 
 DISTRIBUTION_LICENSE_FALLBACK_CONFIG = "ckanext.dcat.resource.inherit.license"
-PREF_LANDING= config.get('ckanext.dcat.base_uri')
+# Leggi base_uri con fallback a ckan.site_url se non configurato
+PREF_LANDING = config.get('ckanext.dcat.base_uri') or config.get('ckan.site_url', 'https://dati.comune.messina.it')
+# Rimuovi porta se presente nel PREF_LANDING
+if PREF_LANDING and ':' in PREF_LANDING.split('//')[-1]:
+    protocol, rest = PREF_LANDING.split('//', 1)
+    domain = rest.split(':')[0].split('/')[0]
+    PREF_LANDING = protocol + '//' + domain
 
 class EuropeanDCATAPProfile(RDFProfile):
     """
@@ -657,6 +663,7 @@ class EuropeanDCATAPProfile(RDFProfile):
                resource_dict['access_url']=resource_dict['url']
 # PATCH MOLTO DELICATA: SOSTITUISCE accessURL con la url della risorsa del CKAN e inserisce in downloadURL (campo opzionale per il DCAT)  la vecchia acce>
             if dataset_dict.get('id'):
+               # PREF_LANDING è già pulito dalla porta all'import del modulo
                resource_dict['access_url']=PREF_LANDING+'/dataset/'+dataset_dict['id']+'/resource/'+resource_dict['id']
             if resource_dict.get('license'):
              resource_dict['license']=resource_dict['license'].replace('https://w3id.org/italia/controlled-vocabulary/licences/C1_Unknown','http://creativecommons.org/licenses/by/4.0/')
