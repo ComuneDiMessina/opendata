@@ -22,7 +22,7 @@ export default function Informazioni() {
       </p>
       <div className="d-flex flex-column flex-md-row gap-3 my-4">
         <a 
-          href="https://github.com/ComuneDiMessina/opendata/issues" 
+          href="https://github.com/ComuneDiMessina/opendata/issues/new" 
           target="_blank" 
           rel="noopener noreferrer"
           className="btn btn-primary"
