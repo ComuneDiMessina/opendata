@@ -658,6 +658,9 @@ class EuropeanDCATAPProfile(RDFProfile):
             if not resource_dict.get('access_url'):
              if resource_dict.get('url'):
               resource_dict['access_url']=resource_dict['url']
+            # Rimuovi porta 8443 dai download_url (porta admin non deve essere esposta pubblicamente)
+            if resource_dict.get('download_url') and ':8443' in resource_dict['download_url']:
+              resource_dict['download_url'] = resource_dict['download_url'].replace(':8443/', '/')
             if resource_dict.get('access_url'):
              if 'view-dataset' in resource_dict.get('access_url'):
                resource_dict['access_url']=resource_dict['url']
