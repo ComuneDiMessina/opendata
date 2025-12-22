@@ -82,9 +82,7 @@ export default function DatasetCard({ dataset }) {
                     <Icon icon="it-code-circle" size="xs" color="white" />
                     API
                   </Badge>
-                  {!dataset.resources.some(r => r.format?.toUpperCase() === 'CSV') && (
-                    <Badge color="success" className="text-uppercase px-2 py-1">CSV</Badge>
-                  )}
+                  <Badge color="success" className="text-uppercase px-2 py-1">CSV</Badge>
                   <Badge color="success" className="text-uppercase px-2 py-1">TSV</Badge>
                   <Badge color="success" className="text-uppercase px-2 py-1">JSON</Badge>
                   <Badge color="success" className="text-uppercase px-2 py-1">XML</Badge>
