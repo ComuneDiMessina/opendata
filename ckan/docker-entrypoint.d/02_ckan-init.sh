@@ -47,7 +47,9 @@ if [[ $CKAN__PLUGINS == *"dcatapit_pkg"* ]]; then
    # Set API token if necessary
    echo "Set up ckanext.dcat.rdf.profiles in the CKAN config file"
    ckan config-tool $CKAN_INI "ckanext.dcat.rdf.profiles=euro_dcat_ap_2 it_dcat_ap"
-   ckan config-tool $CKAN_INI "ckanext.dcat.base_uri=$CKAN_SITE_URL"
+   # Use CKANEXT__DCAT__BASE__URI if set, otherwise fallback to FRONTEND_PUBLIC_URL or CKAN_SITE_URL
+   DCAT_BASE_URI="${CKANEXT__DCAT__BASE_URI:-${FRONTEND_PUBLIC_URL:-$CKAN_SITE_URL}}"
+   ckan config-tool $CKAN_INI "ckanext.dcat.base_uri=$DCAT_BASE_URI"
    ckan config-tool $CKAN_INI "solr_timeout=500"
 fi
 
