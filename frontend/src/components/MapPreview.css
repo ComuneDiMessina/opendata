@@ -1,11 +1,99 @@
 /* Stile personalizzato per i popup della mappa secondo Bootstrap Italia */
 
+/* Container della mappa con supporto fullscreen */
+.map-preview-container {
+  position: relative;
+}
+
+.map-preview-container.fullscreen {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 99999 !important;
+  background-color: #ffffff;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.map-preview-container.fullscreen > div {
+  width: 100% !important;
+  height: 100% !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.map-preview-container.fullscreen .leaflet-container {
+  width: 100vw !important;
+  height: 100vh !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+}
+
+/* Bottone fullscreen */
+.btn-fullscreen {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 100000;
+  width: 40px;
+  height: 40px;
+  background-color: #ffffff;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #17324d;
+  padding: 0;
+}
+
+.btn-fullscreen:hover {
+  background-color: #0066cc;
+  color: #ffffff;
+  border-color: #0066cc;
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+  transform: scale(1.05);
+}
+
+.btn-fullscreen:hover .icon,
+.btn-fullscreen:hover svg {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
+
+.btn-fullscreen:active {
+  transform: scale(0.95);
+  background-color: #004d99;
+}
+
+.map-preview-container.fullscreen .btn-fullscreen {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  z-index: 100001;
+}
+
 /* Popup container */
 .leaflet-popup-content-wrapper {
   font-family: 'Titillium Web', sans-serif !important;
-  border-radius: 8px !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
-  border: none !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid rgba(0, 102, 204, 0.15) !important;
   padding: 0 !important;
   background-color: #ffffff !important;
   overflow: visible !important;
@@ -17,8 +105,9 @@
   font-family: 'Titillium Web', sans-serif !important;
   color: #17324d !important;
   font-size: 0.875rem !important;
-  line-height: 1.5 !important;
-  min-width: 200px !important;
+  line-height: 1.4 !important;
+  min-width: 180px !important;
+  max-width: 280px !important;
 }
 
 /* Freccia del popup */
@@ -30,21 +119,21 @@
 /* Bottone di chiusura - posizionato all'interno */
 .leaflet-popup-close-button {
   position: absolute !important;
-  top: 8px !important;
-  right: 8px !important;
-  width: 28px !important;
-  height: 28px !important;
+  top: 6px !important;
+  right: 6px !important;
+  width: 24px !important;
+  height: 24px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  color: #5c6f82 !important;
-  font-size: 18px !important;
+  color: #435666 !important;
+  font-size: 16px !important;
   font-weight: 400 !important;
   line-height: 1 !important;
   padding: 0 !important;
-  border-radius: 4px !important;
+  border-radius: 3px !important;
   background-color: transparent !important;
-  transition: all 0.2s ease !important;
+  transition: all 0.15s ease !important;
   z-index: 1000 !important;
   border: none !important;
   cursor: pointer !important;
@@ -56,8 +145,13 @@
   transform: scale(1.1) !important;
 }
 
+.leaflet-popup-close-button:hover span {
+  color: #ffffff !important;
+}
+
 .leaflet-popup-close-button:active {
   transform: scale(0.95) !important;
+  background-color: #004d99 !important;
 }
 
 /* Stile specifico per i popup della mappa italia */
@@ -67,9 +161,10 @@
 
 /* Header del popup con padding per evitare sovrapposizione con la X */
 .leaflet-popup-content > div {
-  padding: 20px !important;
-  padding-top: 24px !important;
-  max-height: 400px !important;
+  padding: 12px !important;
+  padding-top: 14px !important;
+  padding-right: 32px !important;
+  max-height: 300px !important;
   overflow-y: auto !important;
 }
 
@@ -82,29 +177,30 @@
   }
   
   .leaflet-popup-content {
-    min-width: 180px !important;
+    min-width: 160px !important;
     max-width: calc(100vw - 60px) !important;
   }
   
   .leaflet-popup-content > div {
-    padding: 16px !important;
-    padding-top: 20px !important;
-    max-height: 60vh !important;
+    padding: 10px !important;
+    padding-top: 12px !important;
+    padding-right: 30px !important;
+    max-height: 50vh !important;
     overflow-y: auto !important;
   }
   
   /* Riduci font size su mobile */
   .leaflet-popup-content > div > div {
-    margin-bottom: 10px !important;
+    margin-bottom: 8px !important;
   }
   
   /* Bottone di chiusura più piccolo su mobile */
   .leaflet-popup-close-button {
-    top: 6px !important;
-    right: 6px !important;
-    width: 24px !important;
-    height: 24px !important;
-    font-size: 16px !important;
+    top: 4px !important;
+    right: 4px !important;
+    width: 22px !important;
+    height: 22px !important;
+    font-size: 14px !important;
   }
   
   /* Limita larghezza del popup */
@@ -124,7 +220,7 @@
 }
 
 .leaflet-popup-content > div::-webkit-scrollbar-thumb {
-  background: #5c6f82;
+  background: #435666;
   border-radius: 3px;
 }
 

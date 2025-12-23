@@ -9,6 +9,40 @@ export default function MapPreview({ resourceUrl, resourceId, packageId, onLoadE
   const [geoData, setGeoData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const mapRef = React.useRef(null);
+
+  // Gestione del resize della mappa quando entra/esce dal fullscreen
+  useEffect(() => {
+    if (mapRef.current) {
+      // Forza il ridimensionamento della mappa dopo un breve delay
+      setTimeout(() => {
+        mapRef.current.invalidateSize();
+      }, 100);
+    }
+  }, [isFullscreen]);
+
+  // Gestione tasto ESC per uscire dal fullscreen
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false);
+      }
+    };
+    
+    // Previeni lo scroll della pagina quando in fullscreen
+    if (isFullscreen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    
+    window.addEventListener('keydown', handleEsc);
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+      document.body.style.overflow = '';
+    };
+  }, [isFullscreen]);
 
   useEffect(() => {
     async function loadGeoJSON() {
@@ -231,21 +265,43 @@ export default function MapPreview({ resourceUrl, resourceId, packageId, onLoadE
   };
 
   return (
-    <div className="border rounded-3 overflow-hidden shadow-sm">
-      <MapContainer
-        center={getMapCenter()}
-        zoom={13}
-        style={{ height: '500px', width: '100%' }}
-        scrollWheelZoom={false}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-        />
-        <GeoJSON
-          data={geoData}
-          style={{
-            color: '#0066cc',
+    <>
+      <div className={`map-preview-container ${isFullscreen ? 'fullscreen' : ''}`}>
+        {/* Bottone fullscreen */}
+        <button
+          className="btn-fullscreen"
+          onClick={() => setIsFullscreen(!isFullscreen)}
+          title={isFullscreen ? "Esci da schermo intero" : "Visualizza a schermo intero"}
+          aria-label={isFullscreen ? "Esci da schermo intero" : "Visualizza a schermo intero"}
+        >
+          <Icon 
+            icon={isFullscreen ? "it-close-big" : "it-fullscreen"} 
+            size="sm"
+          />
+        </button>
+
+        <div className={isFullscreen ? '' : 'border rounded-3 overflow-hidden shadow-sm'}>
+          <MapContainer
+            ref={mapRef}
+            center={getMapCenter()}
+            zoom={13}
+            style={{ 
+              height: isFullscreen ? '100vh' : '500px', 
+              width: '100%'
+            }}
+            scrollWheelZoom={true}
+            whenReady={(mapInstance) => {
+              mapRef.current = mapInstance.target;
+            }}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+              url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+            />
+            <GeoJSON
+              data={geoData}
+              style={{
+                color: '#0066cc',
             weight: 3,
             opacity: 0.7,
             fillColor: '#0066cc',
@@ -273,11 +329,11 @@ export default function MapPreview({ resourceUrl, resourceId, packageId, onLoadE
                     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                     .join(' ');
                   return `
-                    <div style="margin-bottom: 12px;">
-                      <div style="font-family: 'Titillium Web', sans-serif; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.3px; color: #5c6f82; margin-bottom: 4px;">
+                    <div style="margin-bottom: 8px; line-height: 1.3;">
+                      <div style="font-family: 'Titillium Web', sans-serif; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.2px; color: #435666; margin-bottom: 2px;">
                         ${formattedKey}
                       </div>
-                      <div style="font-family: 'Titillium Web', sans-serif; font-size: 0.9rem; font-weight: 600; color: #17324d;">
+                      <div style="font-family: 'Titillium Web', sans-serif; font-size: 0.875rem; font-weight: 600; color: #17324d; word-break: break-word;">
                         ${value}
                       </div>
                     </div>
@@ -291,13 +347,13 @@ export default function MapPreview({ resourceUrl, resourceId, packageId, onLoadE
                   </div>
                 `;
                 layer.bindPopup(popupContent, {
-                  maxWidth: 320,
-                  minWidth: 220,
-                  maxHeight: 400,
+                  maxWidth: 280,
+                  minWidth: 180,
+                  maxHeight: 300,
                   className: 'italia-map-popup',
                   closeButton: true,
                   autoPan: true,
-                  autoPanPadding: [50, 50],
+                  autoPanPadding: [40, 40],
                   keepInView: true
                 });
               }
@@ -305,6 +361,8 @@ export default function MapPreview({ resourceUrl, resourceId, packageId, onLoadE
           }}
         />
       </MapContainer>
-    </div>
+        </div>
+      </div>
+    </>
   );
 }
