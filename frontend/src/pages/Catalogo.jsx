@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, FormGroup, Label, Button, Row, Col, Icon, Input } from 'design-react-kit';
+import { Form, FormGroup, Label, Button, Row, Col, Icon, Input, Collapse } from 'design-react-kit';
 import { Link, useSearchParams } from 'react-router-dom';
 import { fetchPackageSearch, fetchGroupList, fetchGroupShow, fetchOrganizationList, fetchOrganizationShow, enrichDatasetsWithOrgDetails } from '../api/ckan';
 import DatasetCard from '../components/DatasetCard';
@@ -21,9 +21,12 @@ export default function Catalogo() {
   const [enti, setEnti] = useState([]);
   const [availableFormats, setAvailableFormats] = useState([]);
   const [formatCounts, setFormatCounts] = useState({});
+  const [showAllFormats, setShowAllFormats] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false); // Stato per collapse filtri mobile
   const [totalDatasets, setTotalDatasets] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const ROWS_PER_PAGE = 30;
+  const FORMATS_TO_SHOW = 5; // Numero di formati da mostrare di default
 
   // Carica formati disponibili con i loro conteggi
   useEffect(() => {
@@ -257,8 +260,8 @@ export default function Catalogo() {
     <div className="container-fluid" style={{ paddingLeft: '3rem', paddingRight: '3rem' }}>
       {/* Results Section */}
       <Row className="mt-4">
-        {/* Sidebar Filtri */}
-        <Col lg={2} xl={2} md={3} className="mb-4">
+        {/* Sidebar Filtri Desktop */}
+        <Col xs={12} lg={2} xl={2} md={3} className="mb-4 order-2 order-lg-1 d-none d-lg-block">
           <div className="sticky-top" style={{ top: '1rem' }}>
             <div className="bg-light rounded-3 p-3 border">
               {/* Filtro Tema */}
@@ -307,7 +310,7 @@ export default function Catalogo() {
                     Formato
                   </label>
                   <div>
-                    {availableFormats.map(format => (
+                    {(showAllFormats ? availableFormats : availableFormats.slice(0, FORMATS_TO_SHOW)).map(format => (
                       <FormGroup check key={format} className="mb-2">
                         <Input
                           id={`format-${format}`}
@@ -321,6 +324,26 @@ export default function Catalogo() {
                         </Label>
                       </FormGroup>
                     ))}
+                    {availableFormats.length > FORMATS_TO_SHOW && (
+                      <Button
+                        color="link"
+                        size="sm"
+                        className="p-0 text-decoration-none"
+                        onClick={() => setShowAllFormats(!showAllFormats)}
+                      >
+                        {showAllFormats ? (
+                          <>
+                            <Icon icon="it-minus" size="xs" className="me-1" />
+                            Mostra meno
+                          </>
+                        ) : (
+                          <>
+                            <Icon icon="it-plus" size="xs" className="me-1" />
+                            Mostra tutti ({availableFormats.length})
+                          </>
+                        )}
+                      </Button>
+                    )}
                   </div>
                 </div>
               )}
@@ -342,7 +365,123 @@ export default function Catalogo() {
         </Col>
 
         {/* Main Content */}
-        <Col lg={10} xl={10} md={9}>
+        <Col xs={12} lg={10} xl={10} md={9} className="order-1 order-lg-2">
+          {/* Filtri Collapsible Mobile */}
+          <div className="d-lg-none mb-4">
+            <Button
+              color="light"
+              className="w-100 d-flex justify-content-between align-items-center border"
+              onClick={() => setFiltersOpen(!filtersOpen)}
+              aria-expanded={filtersOpen}
+            >
+              <span>
+                <Icon icon="it-funnel" size="sm" className="me-2" />
+                Filtri
+              </span>
+              <Icon icon={filtersOpen ? "it-minus" : "it-plus"} size="sm" />
+            </Button>
+            <Collapse isOpen={filtersOpen}>
+              <div className="bg-light rounded-3 p-3 border mt-2">
+                {/* Filtro Tema */}
+                <div className="mb-4">
+                  <label htmlFor="theme-mobile" className="form-label fw-semibold">
+                    <Icon icon="it-folder" size="xs" className="me-1" />
+                    Tema
+                  </label>
+                  <select 
+                    id="theme-mobile" 
+                    className="form-select"
+                    value={theme} 
+                    onChange={e => setTheme(e.target.value)}
+                  >
+                    <option value="">Tutti i temi</option>
+                    {themes.map(t => (
+                      <option key={t.name} value={t.name}>{t.title}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Filtro Ente */}
+                <div className="mb-4">
+                  <label htmlFor="ente-mobile" className="form-label fw-semibold">
+                    <Icon icon="it-pa" size="xs" className="me-1" />
+                    Ente
+                  </label>
+                  <select 
+                    id="ente-mobile" 
+                    className="form-select"
+                    value={ente} 
+                    onChange={e => setEnte(e.target.value)}
+                  >
+                    <option value="">Tutti gli enti</option>
+                    {enti.map(e => (
+                      <option key={e.name} value={e.name}>{e.title}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Filtro Formati */}
+                {availableFormats.length > 0 && (
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold mb-2">
+                      <Icon icon="it-file" size="xs" className="me-1" />
+                      Formato
+                    </label>
+                    <div>
+                      {(showAllFormats ? availableFormats : availableFormats.slice(0, FORMATS_TO_SHOW)).map(format => (
+                        <FormGroup check key={format} className="mb-2">
+                          <Input
+                            id={`format-mobile-${format}`}
+                            type="checkbox"
+                            checked={selectedFormats.includes(format)}
+                            onChange={() => toggleFormat(format)}
+                          />
+                          <Label check htmlFor={`format-mobile-${format}`} className="d-flex justify-content-between align-items-center">
+                            <span>{format}</span>
+                            <span className="badge bg-secondary ms-2">{formatCounts[format] || 0}</span>
+                          </Label>
+                        </FormGroup>
+                      ))}
+                      {availableFormats.length > FORMATS_TO_SHOW && (
+                        <Button
+                          color="link"
+                          size="sm"
+                          className="p-0 text-decoration-none"
+                          onClick={() => setShowAllFormats(!showAllFormats)}
+                        >
+                          {showAllFormats ? (
+                            <>
+                              <Icon icon="it-minus" size="xs" className="me-1" />
+                              Mostra meno
+                            </>
+                          ) : (
+                            <>
+                              <Icon icon="it-plus" size="xs" className="me-1" />
+                              Mostra tutti ({availableFormats.length})
+                            </>
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Pulsante reset */}
+                {(theme || ente || selectedFormats.length > 0) && (
+                  <Button
+                    color="outline-primary"
+                    size="sm"
+                    className="w-100"
+                    onClick={handleResetFilters}
+                  >
+                    <Icon icon="it-refresh" size="xs" className="me-1" />
+                    Cancella tutti i filtri
+                  </Button>
+                )}
+              </div>
+            </Collapse>
+          </div>
+
           {/* Search Bar */}
           <div className="mb-4">
             <Form role="search" onSubmit={handleSearch}>
@@ -370,8 +509,8 @@ export default function Catalogo() {
                   className="btn btn-primary px-4"
                   aria-label="Avvia ricerca"
                 >
-                  <Icon icon="it-search" color="white" size="sm" className="me-2" aria-hidden="true" />
-                  Cerca
+                  <Icon icon="it-search" color="white" size="sm" aria-hidden="true" />
+                  <span className="d-none d-sm-inline ms-2">Cerca</span>
                 </button>
               </div>
             </Form>
