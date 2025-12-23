@@ -127,7 +127,11 @@ export default function DettaglioRisorsa() {
   // Calcola l'URL endpoint API
   const apiEndpoint = useMemo(() => {
     const baseUrl = CKAN_BASE_URL.replace('/api/3/action', '');
-    return `${baseUrl}/api/3/action/datastore_search?resource_id=${id}`;
+    // Se baseUrl è relativo (inizia con /), concatena con window.location.origin
+    const fullBaseUrl = baseUrl.startsWith('/') || baseUrl === '' 
+      ? window.location.origin 
+      : baseUrl;
+    return `${fullBaseUrl}/api/3/action/datastore_search?resource_id=${id}`;
   }, [id]);
 
   if (loading) return (
