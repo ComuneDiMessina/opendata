@@ -71,9 +71,7 @@ export default function DettaglioRisorsa() {
   }, [loading, location.hash]);
 
   const handleCopy = () => {
-    const baseUrl = CKAN_BASE_URL.replace('/api/3/action', '');
-    const url = `${baseUrl}/api/3/action/datastore_search?resource_id=${id}`;
-    navigator.clipboard.writeText(url);
+    navigator.clipboard.writeText(apiEndpoint);
     notify('URL copiato!', 'L\'URL API della risorsa è stato copiato negli appunti.', { state: 'success', duration: 3000 });
   };
 
