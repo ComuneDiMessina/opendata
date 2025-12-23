@@ -153,7 +153,7 @@ export default function DettaglioDataset() {
         <Col lg={4}>
           <Card className="shadow-sm mb-4 sticky-top dataset-metadata-card" style={{ top: '2rem', marginTop: '1.1rem' }}>
             <div className="card-header bg-light border-bottom py-3 px-4">
-              <h5 className="mb-0 fw-semibold">Informazioni Dataset</h5>
+              <h5 className="mb-0 fw-semibold">Informazioni dataset</h5>
             </div>
             <CardBody className="p-0">
               <div className="dataset-info-item px-3 py-3 border-bottom">
