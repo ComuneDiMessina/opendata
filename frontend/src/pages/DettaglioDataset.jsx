@@ -278,7 +278,7 @@ export default function DettaglioDataset() {
                       {(!res.datastore_active || !['CSV', 'TSV', 'JSON', 'XML'].includes(res.format?.toUpperCase())) && (
                         <Badge color="secondary" className="text-uppercase">{res.format}</Badge>
                       )}
-                      {res.datastore_active && (
+                      {res.datastore_active && res.format?.toLowerCase() !== 'geojson' && (res.format?.toLowerCase() !== 'json' || !res.url?.includes('geojson')) && (
                         <>
                           <Link to={`/risorsa/${res.id}#api-section`} className="text-decoration-none">
                             <Badge color="primary" className="d-flex align-items-center gap-1">
@@ -309,7 +309,7 @@ export default function DettaglioDataset() {
                     <p className="text-muted small mb-3">{res.description}</p>
                   )}
                   
-                  {res.datastore_active && previews[res.id] && (
+                  {res.datastore_active && res.format?.toLowerCase() !== 'geojson' && (res.format?.toLowerCase() !== 'json' || !res.url?.includes('geojson')) && previews[res.id] && (
                     <div className="mb-3">
                       <h6 className="mb-3">
                         <Icon icon="it-search" size="sm" className="me-2" />
@@ -358,7 +358,7 @@ export default function DettaglioDataset() {
                       rel="noreferrer"
                     >
                       <Icon icon="it-download" size="sm" color="white" className="me-2" />
-                      {res.datastore_active && res.format 
+                      {res.datastore_active && res.format && res.format?.toLowerCase() !== 'geojson' && (res.format?.toLowerCase() !== 'json' || !res.url?.includes('geojson'))
                         ? `Scarica risorsa (${res.format.toUpperCase()})`
                         : 'Scarica risorsa'
                       }
@@ -372,13 +372,13 @@ export default function DettaglioDataset() {
                       }}
                     >
                       <Icon icon="it-copy" size="sm" color="primary" className="me-2" />
-                      {res.datastore_active && res.format 
+                      {res.datastore_active && res.format && res.format?.toLowerCase() !== 'geojson' && (res.format?.toLowerCase() !== 'json' || !res.url?.includes('geojson'))
                         ? `Copia URL (${res.format.toUpperCase()})`
                         : 'Copia URL'
                       }
                     </button>
                     
-                    {res.datastore_active ? (
+                    {res.datastore_active && res.format?.toLowerCase() !== 'geojson' && (res.format?.toLowerCase() !== 'json' || !res.url?.includes('geojson')) ? (
                       <Link 
                         to={`/risorsa/${res.id}`} 
                         className="btn btn-outline-primary btn-sm"

@@ -9,6 +9,7 @@ import ReactMarkdown from 'react-markdown';
 import { fetchDatastoreSearch, fetchResourceShow, fetchPackageShow } from '../api/ckan';
 import { CKAN_BASE_URL } from '../config';
 import Breadcrumbs from '../components/Breadcrumbs';
+import MapPreview from '../components/MapPreview';
 
 export default function DettaglioRisorsa() {
   const { id } = useParams();
@@ -22,6 +23,7 @@ export default function DettaglioRisorsa() {
   const [filters, setFilters] = useState({});
   const [searchText, setSearchText] = useState('');
   const limit = 500;
+  const MAX_GEOJSON_SIZE = 5 * 1024 * 1024; // 5 MB
 
   useEffect(() => {
     async function loadResource() {
@@ -235,6 +237,38 @@ export default function DettaglioRisorsa() {
           <div className="markdown-content">
             <ReactMarkdown>{resource.description}</ReactMarkdown>
           </div>
+        </section>
+      )}
+
+      {/* Mappa per GeoJSON */}
+      {isGeoJSON && resource && (
+        <section className="mb-5">
+          <h5 className="mb-3">
+            <Icon icon="it-map-marker" size="sm" className="me-2" />
+            Visualizzazione Mappa
+          </h5>
+          
+          {resource.size && resource.size > MAX_GEOJSON_SIZE ? (
+            <Card className="shadow-sm border-0">
+              <CardBody className="p-4">
+                <div className="alert alert-warning mb-0" role="alert">
+                  <Icon icon="it-warning-circle" className="me-2" />
+                  <strong>File troppo grande:</strong> Il file GeoJSON è troppo grande ({(resource.size / (1024 * 1024)).toFixed(2)} MB) per essere visualizzato sulla mappa. 
+                  La dimensione massima supportata è {MAX_GEOJSON_SIZE / (1024 * 1024)} MB. Puoi comunque scaricare il file per visualizzarlo localmente.
+                </div>
+              </CardBody>
+            </Card>
+          ) : (
+            <Card className="shadow-sm border-0">
+              <CardBody className="p-4">
+                <MapPreview 
+                  resourceUrl={resource.url} 
+                  resourceId={resource.id}
+                  packageId={resource.package_id}
+                />
+              </CardBody>
+            </Card>
+          )}
         </section>
       )}
 

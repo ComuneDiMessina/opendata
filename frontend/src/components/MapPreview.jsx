@@ -4,23 +4,45 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Icon } from 'design-react-kit';
 
-export default function MapPreview({ resourceUrl }) {
+export default function MapPreview({ resourceUrl, resourceId, packageId }) {
   const [geoData, setGeoData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [corsError, setCorsError] = useState(false);
 
   useEffect(() => {
     async function loadGeoJSON() {
       try {
-        // Carica il GeoJSON dall'URL della risorsa
-        const response = await fetch(resourceUrl);
+        let response;
+        let data;
         
-        if (!response.ok) {
-          throw new Error('Errore nel caricamento del GeoJSON');
+        // Prova prima con il proxy CKAN se disponibile
+        if (resourceId && packageId) {
+          try {
+            // Usa l'endpoint di download CKAN che gestisce CORS
+            const proxyUrl = `${window.location.origin}/dataset/${packageId}/resource/${resourceId}/download`;
+            response = await fetch(proxyUrl);
+            
+            if (response.ok) {
+              data = await response.json();
+            }
+          } catch (proxyError) {
+            console.log('Proxy CKAN non disponibile, provo con URL diretto:', proxyError);
+          }
         }
         
-        const data = await response.json();
+        // Se il proxy non ha funzionato, prova con l'URL diretto
+        if (!data) {
+          response = await fetch(resourceUrl, {
+            mode: 'cors',
+            credentials: 'omit'
+          });
+          
+          if (!response.ok) {
+            throw new Error('Errore nel caricamento del GeoJSON');
+          }
+          
+          data = await response.json();
+        }
         
         // Verifica se è un GeoJSON valido
         if (data && (data.type === 'FeatureCollection' || data.type === 'Feature')) {
@@ -63,80 +85,17 @@ export default function MapPreview({ resourceUrl }) {
           throw new Error('Formato non supportato per la visualizzazione su mappa');
         }
       } catch (err) {
-        // Verifica se è un errore CORS
-        if (err.message.includes('Failed to fetch') || err.name === 'TypeError') {
-          setCorsError(true);
-          setError('Il file non può essere caricato direttamente a causa di restrizioni CORS. Scarica il file e caricalo manualmente.');
-        } else {
-          setError(err.message);
-        }
+        setError('Impossibile caricare il file GeoJSON: ' + err.message);
         console.error('Errore caricamento GeoJSON:', err);
       } finally {
         setLoading(false);
       }
     }
     
-    loadGeoJSON();
-  }, [resourceUrl]);
-
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const data = JSON.parse(e.target.result);
-        
-        // Verifica se è un GeoJSON valido
-        if (data && (data.type === 'FeatureCollection' || data.type === 'Feature')) {
-          setGeoData(data);
-          setError(null);
-          setCorsError(false);
-        } else if (Array.isArray(data) && data.length > 0) {
-          // Conversione da array a GeoJSON
-          const features = data
-            .filter(item => item.geometry || item.geometria || (item.lat && item.lon))
-            .map((item, idx) => {
-              let geometry;
-              if (item.geometry) {
-                geometry = typeof item.geometry === 'string' ? JSON.parse(item.geometry) : item.geometry;
-              } else if (item.geometria) {
-                geometry = typeof item.geometria === 'string' ? JSON.parse(item.geometria) : item.geometria;
-              } else if (item.lat && item.lon) {
-                geometry = {
-                  type: 'Point',
-                  coordinates: [parseFloat(item.lon), parseFloat(item.lat)]
-                };
-              }
-              
-              return {
-                type: 'Feature',
-                id: idx,
-                geometry,
-                properties: { ...item }
-              };
-            });
-          
-          if (features.length > 0) {
-            setGeoData({
-              type: 'FeatureCollection',
-              features
-            });
-            setError(null);
-            setCorsError(false);
-          } else {
-            setError('Nessun dato geografico trovato nel file');
-          }
-        } else {
-          setError('Formato file non valido');
-        }
-      } catch (err) {
-        setError('Errore nella lettura del file: ' + err.message);
-      }
-    };
-    reader.readAsText(file);
-  };
+    if (resourceUrl) {
+      loadGeoJSON();
+    }
+  }, [resourceUrl, resourceId, packageId]);
 
   if (loading) {
     return (
@@ -150,44 +109,8 @@ export default function MapPreview({ resourceUrl }) {
 
   if (error) {
     return (
-      <div>
-        <div className="alert alert-warning" role="alert">
-          <Icon icon="it-info-circle" className="me-2" />
-          {error}
-        </div>
-        {corsError && (
-          <div className="p-4 border rounded-3 bg-light">
-            <h6 className="mb-3">
-              <Icon icon="it-upload" className="me-2" />
-              Carica il file manualmente
-            </h6>
-            <div className="mb-3">
-              <p className="small text-muted mb-2">
-                1. Scarica prima il file GeoJSON dal link seguente:
-              </p>
-              <a 
-                href={resourceUrl} 
-                target="_blank" 
-                rel="noreferrer"
-                className="btn btn-sm btn-primary mb-3"
-              >
-                <Icon icon="it-download" className="me-2" />
-                Scarica file GeoJSON
-              </a>
-            </div>
-            <div>
-              <p className="small text-muted mb-2">
-                2. Poi carica il file scaricato per visualizzarlo sulla mappa:
-              </p>
-              <input 
-                type="file" 
-                accept=".geojson,.json"
-                onChange={handleFileUpload}
-                className="form-control"
-              />
-            </div>
-          </div>
-        )}
+      <div className="alert alert-warning" role="alert">
+        {error}
       </div>
     );
   }
