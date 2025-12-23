@@ -11,6 +11,30 @@ export default function MapPreview({ resourceUrl, resourceId, packageId, onLoadE
   const [error, setError] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const mapRef = React.useRef(null);
+  const containerRef = React.useRef(null);
+
+  // Observer per rilevare quando il componente diventa visibile
+  useEffect(() => {
+    if (!containerRef.current) return;
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && mapRef.current) {
+            // Quando diventa visibile, forza il resize della mappa
+            setTimeout(() => {
+              mapRef.current.invalidateSize();
+            }, 100);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    
+    observer.observe(containerRef.current);
+    
+    return () => observer.disconnect();
+  }, [geoData]);
 
   // Gestione del resize della mappa quando entra/esce dal fullscreen
   useEffect(() => {
@@ -19,8 +43,13 @@ export default function MapPreview({ resourceUrl, resourceId, packageId, onLoadE
       setTimeout(() => {
         mapRef.current.invalidateSize();
       }, 100);
+      
+      // Aggiunge un secondo tentativo per risolvere problemi di rendering
+      setTimeout(() => {
+        mapRef.current.invalidateSize();
+      }, 300);
     }
-  }, [isFullscreen]);
+  }, [isFullscreen, geoData]);
 
   // Gestione tasto ESC per uscire dal fullscreen
   useEffect(() => {
@@ -266,7 +295,7 @@ export default function MapPreview({ resourceUrl, resourceId, packageId, onLoadE
 
   return (
     <>
-      <div className={`map-preview-container ${isFullscreen ? 'fullscreen' : ''}`}>
+      <div ref={containerRef} className={`map-preview-container ${isFullscreen ? 'fullscreen' : ''}`}>
         {/* Bottone fullscreen */}
         <button
           className="btn-fullscreen"

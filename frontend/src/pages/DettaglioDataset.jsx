@@ -5,6 +5,7 @@ import { fetchPackageShow, fetchDatastoreSearch, fetchPackageSearch, enrichDatas
 import Breadcrumbs from '../components/Breadcrumbs';
 import DatasetCard from '../components/DatasetCard';
 import ReactMarkdown from 'react-markdown';
+import MapPreview from '../components/MapPreview';
 
 export default function DettaglioDataset() {
   const { id } = useParams();
@@ -36,11 +37,21 @@ export default function DettaglioDataset() {
           
           // Logica di espansione automatica
           const resources = res.result.resources;
-          if (resources.length === 1) {
+          
+          // Controlla se c'è una risorsa GeoJSON
+          const geoJsonResource = resources.find(r => 
+            r.format?.toLowerCase() === 'geojson' || 
+            (r.format?.toLowerCase() === 'json' && r.url?.includes('geojson'))
+          );
+          
+          if (geoJsonResource) {
+            // Se c'è una risorsa GeoJSON, espandila di default
+            setCollapseOpen(geoJsonResource.id);
+          } else if (resources.length === 1) {
             // Se c'è una sola risorsa, espandila
             setCollapseOpen(resources[0].id);
-          } else if (resources.length === 2) {
-            // Se ci sono due risorse, espandi quella con anteprima dati attiva
+          } else if (resources.length >= 2) {
+            // Se ci sono due o più risorse, espandi quella con anteprima dati attiva
             const resourceWithPreview = resources.find(r => r.datastore_active && previewsData[r.id]);
             if (resourceWithPreview) {
               setCollapseOpen(resourceWithPreview.id);
@@ -347,6 +358,16 @@ export default function DettaglioDataset() {
                           </small>
                         </div>
                       </div>
+                    </div>
+                  )}
+                  
+                  {/* Anteprima Mappa per GeoJSON */}
+                  {(res.format?.toLowerCase() === 'geojson' || (res.format?.toLowerCase() === 'json' && res.url?.includes('geojson'))) && (
+                    <div className="mb-3">
+                      <MapPreview 
+                        resourceUrl={res.url}
+                        resourceId={res.id}
+                      />
                     </div>
                   )}
                   
