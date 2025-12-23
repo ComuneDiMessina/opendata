@@ -257,7 +257,7 @@ export default function Catalogo() {
   };
 
   return (
-    <div className="container-fluid" style={{ paddingLeft: '3rem', paddingRight: '3rem' }}>
+    <div className="container-fluid px-4 px-lg-5">
       {/* Results Section */}
       <Row className="mt-4">
         {/* Sidebar Filtri Desktop */}
