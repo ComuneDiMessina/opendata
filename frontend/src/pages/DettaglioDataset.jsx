@@ -280,13 +280,13 @@ export default function DettaglioDataset() {
                       )}
                       {res.datastore_active && (
                         <>
-                          <Badge color="primary" className="d-flex align-items-center gap-1">
-                            <Icon icon="it-code-circle" size="xs" color="white" />
-                            API
-                          </Badge>
-                          {res.format?.toUpperCase() !== 'CSV' && (
-                            <Badge color="success" className="text-uppercase">CSV</Badge>
-                          )}
+                          <Link to={`/risorsa/${res.id}#api-section`} className="text-decoration-none">
+                            <Badge color="primary" className="d-flex align-items-center gap-1">
+                              <Icon icon="it-code-circle" size="xs" color="white" />
+                              API
+                            </Badge>
+                          </Link>
+                          <Badge color="success" className="text-uppercase">CSV</Badge>
                           <Badge color="success" className="text-uppercase">TSV</Badge>
                           <Badge color="success" className="text-uppercase">JSON</Badge>
                           <Badge color="success" className="text-uppercase">XML</Badge>
