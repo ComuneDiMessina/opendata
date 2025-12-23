@@ -26,6 +26,15 @@ export default function DettaglioRisorsa() {
   const MAX_GEOJSON_SIZE = 5 * 1024 * 1024; // 5 MB
   const [mapLoadError, setMapLoadError] = useState(false);
 
+  // Funzione per formattare la dimensione del file
+  const formatFileSize = (bytes) => {
+    if (!bytes) return 'N/D';
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`;
+    if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+    return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+  };
+
   useEffect(() => {
     async function loadResource() {
       try {
@@ -175,8 +184,8 @@ export default function DettaglioRisorsa() {
                   <Badge 
                     color="secondary" 
                     className="text-uppercase"
-                    style={{ cursor: hasDatastoreData ? 'pointer' : 'default' }}
-                    onClick={() => hasDatastoreData && document.getElementById('export-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => document.getElementById('download-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
                   >
                     {resource?.format || 'N/D'}
                   </Badge>
@@ -245,15 +254,14 @@ export default function DettaglioRisorsa() {
       {isGeoJSON && resource && !mapLoadError && (
         <section className="mb-5">
           <h5 className="mb-3">
-            <Icon icon="it-map-marker" size="sm" className="me-2" />
-            Visualizzazione Mappa
+            <Icon icon="it-map-marker-circle" size="sm" className="me-2" />
+            Mappa
           </h5>
           
           {resource.size && resource.size > MAX_GEOJSON_SIZE ? (
             <Card className="shadow-sm border-0">
               <CardBody className="p-4">
                 <div className="alert alert-warning mb-0" role="alert">
-                  <Icon icon="it-warning-circle" className="me-2" />
                   <strong>File troppo grande:</strong> Il file GeoJSON è troppo grande ({(resource.size / (1024 * 1024)).toFixed(2)} MB) per essere visualizzato sulla mappa. 
                   La dimensione massima supportata è {MAX_GEOJSON_SIZE / (1024 * 1024)} MB. Puoi comunque scaricare il file per visualizzarlo localmente.
                 </div>
@@ -469,7 +477,7 @@ export default function DettaglioRisorsa() {
                               <div className="text-uppercase text-muted fw-semibold mb-2" style={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
                                 Data Creazione
                               </div>
-                              <div className="small">{new Date(resource.created).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                              <div>{new Date(resource.created).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
                             </div>
                           </div>
                         </Col>
@@ -482,7 +490,7 @@ export default function DettaglioRisorsa() {
                               <div className="text-uppercase text-muted fw-semibold mb-2" style={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
                                 Ultima Modifica
                               </div>
-                              <div className="small">{new Date(resource.last_modified).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                              <div>{new Date(resource.last_modified).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
                             </div>
                           </div>
                         </Col>
@@ -977,19 +985,6 @@ export default function DettaglioRisorsa() {
                           </div>
                         </div>
                       </Col>
-                      <Col md={6}>
-                        <div className="d-flex align-items-start">
-                          <Icon icon="it-file" size="sm" color="primary" className="me-3 mt-1" />
-                          <div className="flex-grow-1">
-                            <div className="text-uppercase text-muted fw-semibold mb-2" style={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
-                              Formato
-                            </div>
-                            <Badge color="secondary" className="text-uppercase">
-                              {resource.format || 'N/D'}
-                            </Badge>
-                          </div>
-                        </div>
-                      </Col>
                       {resource.created && (
                         <Col md={6}>
                           <div className="d-flex align-items-start">
@@ -998,7 +993,7 @@ export default function DettaglioRisorsa() {
                               <div className="text-uppercase text-muted fw-semibold mb-2" style={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
                                 Data Creazione
                               </div>
-                              <div className="small">{new Date(resource.created).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                              <div>{new Date(resource.created).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
                             </div>
                           </div>
                         </Col>
@@ -1011,7 +1006,7 @@ export default function DettaglioRisorsa() {
                               <div className="text-uppercase text-muted fw-semibold mb-2" style={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
                                 Ultima Modifica
                               </div>
-                              <div className="small">{new Date(resource.last_modified).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                              <div>{new Date(resource.last_modified).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
                             </div>
                           </div>
                         </Col>
@@ -1024,7 +1019,7 @@ export default function DettaglioRisorsa() {
                               <div className="text-uppercase text-muted fw-semibold mb-2" style={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
                                 Dimensione
                               </div>
-                              <div className="small">{(resource.size / 1024).toFixed(2)} KB</div>
+                              <div>{formatFileSize(resource.size)}</div>
                             </div>
                           </div>
                         </Col>
@@ -1037,7 +1032,7 @@ export default function DettaglioRisorsa() {
                               <div className="text-uppercase text-muted fw-semibold mb-2" style={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
                                 MIME Type
                               </div>
-                              <code className="small">{resource.mimetype}</code>
+                              <code>{resource.mimetype}</code>
                             </div>
                           </div>
                         </Col>
@@ -1048,7 +1043,7 @@ export default function DettaglioRisorsa() {
               </section>
 
               {/* Download */}
-              <section className="mb-5">
+              <section className="mb-5" id="download-section">
                 <h5 className="mb-3">
                   <Icon icon="it-download" size="sm" className="me-2" />
                   Download
