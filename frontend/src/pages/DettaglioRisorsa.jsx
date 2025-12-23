@@ -24,6 +24,7 @@ export default function DettaglioRisorsa() {
   const [searchText, setSearchText] = useState('');
   const limit = 500;
   const MAX_GEOJSON_SIZE = 5 * 1024 * 1024; // 5 MB
+  const [mapLoadError, setMapLoadError] = useState(false);
 
   useEffect(() => {
     async function loadResource() {
@@ -241,7 +242,7 @@ export default function DettaglioRisorsa() {
       )}
 
       {/* Mappa per GeoJSON */}
-      {isGeoJSON && resource && (
+      {isGeoJSON && resource && !mapLoadError && (
         <section className="mb-5">
           <h5 className="mb-3">
             <Icon icon="it-map-marker" size="sm" className="me-2" />
@@ -265,6 +266,7 @@ export default function DettaglioRisorsa() {
                   resourceUrl={resource.url} 
                   resourceId={resource.id}
                   packageId={resource.package_id}
+                  onLoadError={() => setMapLoadError(true)}
                 />
               </CardBody>
             </Card>

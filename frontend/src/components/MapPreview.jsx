@@ -4,7 +4,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Icon } from 'design-react-kit';
 
-export default function MapPreview({ resourceUrl, resourceId, packageId }) {
+export default function MapPreview({ resourceUrl, resourceId, packageId, onLoadError }) {
   const [geoData, setGeoData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -12,41 +12,111 @@ export default function MapPreview({ resourceUrl, resourceId, packageId }) {
   useEffect(() => {
     async function loadGeoJSON() {
       try {
-        let response;
-        let data;
+        let data = null;
+        let dataLoaded = false;
         
         // Prova prima con il proxy CKAN se disponibile
         if (resourceId && packageId) {
           try {
-            // Usa l'endpoint di download CKAN che gestisce CORS
             const proxyUrl = `${window.location.origin}/dataset/${packageId}/resource/${resourceId}/download`;
-            response = await fetch(proxyUrl);
+            const response = await fetch(proxyUrl);
             
             if (response.ok) {
-              data = await response.json();
+              const contentType = response.headers.get('content-type');
+              // Verifica che sia JSON e non HTML
+              if (contentType && contentType.includes('application/json')) {
+                data = await response.json();
+                dataLoaded = true;
+                console.log('Dati caricati tramite proxy CKAN');
+              } else {
+                console.log('Proxy CKAN ha restituito contenuto non-JSON, provo URL diretto');
+              }
             }
           } catch (proxyError) {
-            console.log('Proxy CKAN non disponibile, provo con URL diretto:', proxyError);
+            console.log('Proxy CKAN non disponibile, provo con URL diretto:', proxyError.message);
           }
         }
         
         // Se il proxy non ha funzionato, prova con l'URL diretto
-        if (!data) {
-          response = await fetch(resourceUrl, {
+        if (!dataLoaded && resourceUrl) {
+          console.log('Caricamento da URL diretto:', resourceUrl);
+          const response = await fetch(resourceUrl, {
             mode: 'cors',
             credentials: 'omit'
           });
           
           if (!response.ok) {
-            throw new Error('Errore nel caricamento del GeoJSON');
+            throw new Error(`Errore HTTP ${response.status}: ${response.statusText}`);
+          }
+          
+          const contentType = response.headers.get('content-type');
+          if (contentType && !contentType.includes('application/json') && !contentType.includes('application/geo+json')) {
+            console.warn('Content-Type potrebbe non essere JSON/GeoJSON:', contentType);
           }
           
           data = await response.json();
+          console.log('Dati caricati da URL diretto, tipo:', data?.type || 'sconosciuto', 'features:', data?.features?.length || data?.length || 0);
+        }
+        
+        if (!data) {
+          throw new Error('Nessun dato caricato');
+        }
+        
+        // Debug: mostra la struttura completa dei dati
+        console.log('Struttura dati ricevuti:', {
+          keys: Object.keys(data),
+          hasResults: !!data.results,
+          resultsIsArray: Array.isArray(data.results),
+          resultsLength: data.results?.length,
+          resultsType: typeof data.results,
+          resultsKeys: data.results ? Object.keys(data.results).slice(0, 10) : null,
+          firstResultKeys: data.results?.[0] ? Object.keys(data.results[0]) : null,
+          firstResultSample: data.results?.[0]
+        });
+        
+        // Controlla se è una risposta paginata CKAN (con results)
+        if (data.results) {
+          console.log('Trovato data.results, tipo:', typeof data.results);
+          
+          // Se results è un oggetto (non array), potrebbe essere direttamente il GeoJSON
+          if (!Array.isArray(data.results) && typeof data.results === 'object') {
+            console.log('data.results è un oggetto, lo uso direttamente');
+            data = data.results;
+          } else if (Array.isArray(data.results) && data.results.length > 0) {
+            console.log('Risposta CKAN paginata con', data.results.length, 'risultati');
+            const firstResult = data.results[0];
+            console.log('Primo risultato:', firstResult);
+            
+            // Se results contiene un singolo elemento che è un GeoJSON completo
+            if (data.results.length === 1 && (firstResult.type === 'FeatureCollection' || firstResult.features)) {
+              console.log('Results[0] è un GeoJSON, lo uso direttamente');
+              data = firstResult;
+            } else if (firstResult.features) {
+              // Se ogni elemento ha features, combinali
+              console.log('Combino features da tutti i risultati');
+              const allFeatures = data.results.flatMap(r => r.features || []);
+              data = { type: 'FeatureCollection', features: allFeatures };
+            } else {
+              // Altrimenti, tratta results come l'array di dati da convertire
+              console.log('Tratto results come array di dati geografici');
+              data = data.results;
+            }
+          }
+          console.log('Dati dopo elaborazione results:', { type: data?.type, featuresCount: data?.features?.length || data?.length });
         }
         
         // Verifica se è un GeoJSON valido
-        if (data && (data.type === 'FeatureCollection' || data.type === 'Feature')) {
+        if (data.type === 'FeatureCollection' || data.type === 'Feature') {
+          console.log('GeoJSON valido con type:', data.type);
           setGeoData(data);
+        } else if (data.features && Array.isArray(data.features) && data.features.length > 0) {
+          // Se ha un array "features" ma manca il "type", aggiungilo
+          console.log('GeoJSON senza type, aggiungo FeatureCollection con', data.features.length, 'features');
+          const geoJsonData = {
+            type: 'FeatureCollection',
+            features: data.features
+          };
+          setGeoData(geoJsonData);
         } else if (Array.isArray(data) && data.length > 0) {
           // Se è un array, potrebbe essere un formato CKAN datastore
           // Prova a convertirlo in GeoJSON se ha campi geometry/geometria o lat/lon
@@ -79,14 +149,29 @@ export default function MapPreview({ resourceUrl, resourceId, packageId }) {
               features
             });
           } else {
+            console.warn('Nessun dato geografico trovato nell\'array di', features.length, 'elementi');
             throw new Error('Nessun dato geografico trovato nella risorsa');
           }
         } else {
+          console.error('Formato dati non riconosciuto:', {
+            hasType: !!data?.type,
+            type: data?.type,
+            hasFeatures: !!data?.features,
+            isArray: Array.isArray(data),
+            keys: data ? Object.keys(data).slice(0, 10) : []
+          });
           throw new Error('Formato non supportato per la visualizzazione su mappa');
         }
       } catch (err) {
-        setError('Impossibile caricare il file GeoJSON: ' + err.message);
-        console.error('Errore caricamento GeoJSON:', err);
+        const errorMsg = err.message || 'Errore sconosciuto';
+        console.error('Impossibile caricare il file GeoJSON:', errorMsg);
+        console.error('Errore dettagliato:', err);
+        // Non mostrare l'errore a schermo, solo in console
+        setError(errorMsg);
+        // Notifica il parent dell'errore se la callback è definita
+        if (onLoadError) {
+          onLoadError(errorMsg);
+        }
       } finally {
         setLoading(false);
       }
@@ -108,11 +193,8 @@ export default function MapPreview({ resourceUrl, resourceId, packageId }) {
   }
 
   if (error) {
-    return (
-      <div className="alert alert-warning" role="alert">
-        {error}
-      </div>
-    );
+    // Non mostrare nulla se c'è un errore, solo log in console
+    return null;
   }
 
   if (!geoData) {
@@ -156,8 +238,8 @@ export default function MapPreview({ resourceUrl, resourceId, packageId }) {
         scrollWheelZoom={false}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         />
         <GeoJSON
           data={geoData}
