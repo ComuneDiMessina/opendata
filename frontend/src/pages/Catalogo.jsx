@@ -561,7 +561,7 @@ export default function Catalogo() {
             
             <Row className="g-4">
               {datasets.map(ds => (
-                <Col md={6} lg={4} xl={3} key={ds.id}>
+                <Col md={6} lg={4} xl={4} xxl={3} key={ds.id}>
                   <DatasetCard dataset={ds} />
                 </Col>
               ))}
