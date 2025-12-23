@@ -16,11 +16,27 @@ export async function fetchCurrentPackageListWithResources(limit = 20, offset = 
   return res.json();
 }
 
-export async function fetchPackageSearch({ q = '', rows = 20, start = 0, sort = '', fq = '' }) {
-  const params = new URLSearchParams({ q, rows, start, sort });
-  if (fq) {
-    params.append('fq', fq);
-  }
+export async function fetchPackageSearch({ q = '', rows = 20, start = 0, sort = '', fq = '', ...otherParams }) {
+  const params = new URLSearchParams();
+  
+  // Aggiungi solo parametri non vuoti
+  if (q) params.append('q', q);
+  if (rows !== undefined) params.append('rows', rows);
+  if (start !== undefined) params.append('start', start);
+  if (sort) params.append('sort', sort);
+  if (fq) params.append('fq', fq);
+  
+  // Aggiungi altri parametri (facet, facet.field, facet.limit, ecc.)
+  Object.entries(otherParams).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      if (Array.isArray(value)) {
+        value.forEach(v => params.append(key, v));
+      } else {
+        params.append(key, value);
+      }
+    }
+  });
+  
   const res = await fetch(`${CKAN_BASE_URL}/package_search?${params}`);
   return res.json();
 }

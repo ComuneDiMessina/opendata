@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Row, Col, Icon, Input } from 'design-react-kit';
+import { Form, FormGroup, Label, Button, Row, Col, Icon, Input } from 'design-react-kit';
 import { Link, useSearchParams } from 'react-router-dom';
 import { fetchPackageSearch, fetchGroupList, fetchGroupShow, fetchOrganizationList, fetchOrganizationShow, enrichDatasetsWithOrgDetails } from '../api/ckan';
 import DatasetCard from '../components/DatasetCard';
@@ -11,15 +11,65 @@ export default function Catalogo() {
   const [sort, setSort] = useState('metadata_modified desc');
   const [theme, setTheme] = useState(searchParams.get('tema') || '');
   const [ente, setEnte] = useState(searchParams.get('ente') || '');
+  const [selectedFormats, setSelectedFormats] = useState([]);
   const [datasets, setDatasets] = useState([]);
+  const [allDatasets, setAllDatasets] = useState([]); // Dataset senza filtro formato (client-side)
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
   const [themes, setThemes] = useState([]);
   const [enti, setEnti] = useState([]);
+  const [availableFormats, setAvailableFormats] = useState([]);
+  const [formatCounts, setFormatCounts] = useState({});
   const [totalDatasets, setTotalDatasets] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const ROWS_PER_PAGE = 30;
+
+  // Carica formati disponibili con i loro conteggi
+  useEffect(() => {
+    async function loadFormats() {
+      try {
+        // Carica i dataset per estrarre i formati disponibili
+        const apiParams = {
+          rows: 1000, // Carica molti dataset per avere buona copertura dei formati
+          start: 0
+        };
+        
+        // Aggiungi la query di ricerca se presente
+        if (activeSearch) {
+          apiParams.q = activeSearch;
+        }
+        
+        const filters = [];
+        if (theme) filters.push(`groups:${theme}`);
+        if (ente) filters.push(`organization:${ente}`);
+        if (filters.length > 0) apiParams.fq = filters.join(' AND ');
+        
+        const res = await fetchPackageSearch(apiParams);
+        if (res.success) {
+          const formats = new Set();
+          const counts = {};
+          
+          res.result.results.forEach(ds => {
+            ds.resources?.forEach(r => {
+              if (r.format) {
+                // Preserva il case originale del formato
+                formats.add(r.format);
+                counts[r.format] = (counts[r.format] || 0) + 1;
+              }
+            });
+          });
+          
+          setAvailableFormats([...formats].sort());
+          setFormatCounts(counts);
+        }
+      } catch (err) {
+        console.error('Errore caricamento formati:', err);
+      }
+    }
+    
+    loadFormats();
+  }, [activeSearch, theme, ente]);
 
   useEffect(() => {
     const temaParam = searchParams.get('tema');
@@ -100,6 +150,12 @@ export default function Catalogo() {
         if (ente) {
           filters.push(`organization:${ente}`);
         }
+        // Aggiungi filtro per formati selezionati
+        if (selectedFormats.length > 0) {
+          // CKAN usa OR per formati multipli, i formati sono case-sensitive
+          const formatFilters = selectedFormats.map(f => `res_format:"${f}"`).join(' OR ');
+          filters.push(`(${formatFilters})`);
+        }
         if (filters.length > 0) {
           apiParams.fq = filters.join(' AND ');
         }
@@ -124,7 +180,7 @@ export default function Catalogo() {
       }
     }
     loadData();
-  }, [activeSearch, sort, theme, ente]);
+  }, [activeSearch, sort, theme, ente, selectedFormats]);
 
   // Funzione per caricare più dataset
   const loadMore = async () => {
@@ -146,6 +202,12 @@ export default function Catalogo() {
       }
       if (ente) {
         filters.push(`organization:${ente}`);
+      }
+      // Aggiungi filtro per formati selezionati
+      if (selectedFormats.length > 0) {
+        // I formati sono case-sensitive
+        const formatFilters = selectedFormats.map(f => `res_format:"${f}"`).join(' OR ');
+        filters.push(`(${formatFilters})`);
       }
       if (filters.length > 0) {
         apiParams.fq = filters.join(' AND ');
@@ -177,66 +239,36 @@ export default function Catalogo() {
     setActiveSearch('');
     setTheme('');
     setEnte('');
+    setSelectedFormats([]);
     setSort('metadata_modified desc');
     setSearchParams({}, { replace: true });
   };
 
+  // Gestisci la selezione/deselezione dei formati
+  const toggleFormat = (format) => {
+    setSelectedFormats(prev => 
+      prev.includes(format) 
+        ? prev.filter(f => f !== format)
+        : [...prev, format]
+    );
+  };
+
   return (
-    <div className="container">
-      {/* Page Header */}
-      <section className="py-4">
-        <h1 className="mb-2" style={{ fontSize: '2rem' }}>
-          <Icon icon="it-file" className="me-2" />
-          Catalogo Dataset
-        </h1>
-        <p className="text-muted">
-          Elenco e ricerca dei dataset pubblici del Comune di Messina
-        </p>
-      </section>
-
-      {/* Search and Filters */}
-      <section className="py-4 bg-light rounded-3 my-4 border">
-        <Form role="search" className="px-4 py-3" onSubmit={handleSearch}>
-          {/* Search Bar */}
-          <Row className="g-3 pb-4 mb-4">
-            <Col xs={12}>
-              <div className="form-group mb-0">
-                <label htmlFor="search" className="form-label active fw-semibold">
-                  Ricerca dataset
-                </label>
-                <div className="input-group">
-                  <span className="input-group-text bg-white">
-                    <Icon icon="it-search" color="primary" size="sm" aria-hidden="true" />
-                  </span>
-                  <input
-                    type="search"
-                    id="search"
-                    className="form-control"
-                    placeholder="Cerca per nome o descrizione..."
-                    value={searchInput}
-                    onChange={e => setSearchInput(e.target.value)}
-                  />
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                    aria-label="Avvia ricerca"
-                  >
-                    Cerca
-                  </button>
-                </div>
-              </div>
-            </Col>
-          </Row>
-
-          {/* Filters Row */}
-          <Row className="g-3">
-            <Col md={6} lg={3}>
-              <div className="form-group mb-0">
-                <label htmlFor="theme" className="form-label active fw-semibold">
+    <div className="container-fluid" style={{ paddingLeft: '3rem', paddingRight: '3rem' }}>
+      {/* Results Section */}
+      <Row className="mt-4">
+        {/* Sidebar Filtri */}
+        <Col lg={2} xl={2} md={3} className="mb-4">
+          <div className="sticky-top" style={{ top: '1rem' }}>
+            <div className="bg-light rounded-3 p-3 border">
+              {/* Filtro Tema */}
+              <div className="mb-4">
+                <label htmlFor="theme-sidebar" className="form-label fw-semibold">
+                  <Icon icon="it-folder" size="xs" className="me-1" />
                   Tema
                 </label>
                 <select 
-                  id="theme" 
+                  id="theme-sidebar" 
                   className="form-select"
                   value={theme} 
                   onChange={e => setTheme(e.target.value)}
@@ -247,14 +279,15 @@ export default function Catalogo() {
                   ))}
                 </select>
               </div>
-            </Col>
-            <Col md={6} lg={3}>
-              <div className="form-group mb-0">
-                <label htmlFor="ente" className="form-label active fw-semibold">
+
+              {/* Filtro Ente */}
+              <div className="mb-4">
+                <label htmlFor="ente-sidebar" className="form-label fw-semibold">
+                  <Icon icon="it-pa" size="xs" className="me-1" />
                   Ente
                 </label>
                 <select 
-                  id="ente" 
+                  id="ente-sidebar" 
                   className="form-select"
                   value={ente} 
                   onChange={e => setEnte(e.target.value)}
@@ -265,44 +298,85 @@ export default function Catalogo() {
                   ))}
                 </select>
               </div>
-            </Col>
-            <Col md={6} lg={3}>
-              <div className="form-group mb-0">
-                <label htmlFor="sort" className="form-label active fw-semibold">
-                  Ordina per
-                </label>
-                <select 
-                  id="sort" 
-                  className="form-select"
-                  value={sort} 
-                  onChange={e => setSort(e.target.value)}
-                >
-                  <option value="metadata_modified desc">Più recenti</option>
-                  <option value="title asc">Titolo (A-Z)</option>
-                  <option value="title desc">Titolo (Z-A)</option>
-                </select>
-              </div>
-            </Col>
-            <Col md={6} lg={3}>
-              <div className="form-group mb-0">
-                <label className="form-label active fw-semibold d-block" style={{ visibility: 'hidden' }}>
-                  Azioni
-                </label>
-                <button 
-                  type="button"
-                  className="btn btn-outline-primary w-100"
+
+              {/* Filtro Formati */}
+              {availableFormats.length > 0 && (
+                <div className="mb-3">
+                  <label className="form-label fw-semibold mb-2">
+                    <Icon icon="it-file" size="xs" className="me-1" />
+                    Formato
+                  </label>
+                  <div>
+                    {availableFormats.map(format => (
+                      <FormGroup check key={format} className="mb-2">
+                        <Input
+                          id={`format-${format}`}
+                          type="checkbox"
+                          checked={selectedFormats.includes(format)}
+                          onChange={() => toggleFormat(format)}
+                        />
+                        <Label check htmlFor={`format-${format}`} className="d-flex justify-content-between align-items-center">
+                          <span>{format}</span>
+                          <span className="badge bg-secondary ms-2">{formatCounts[format] || 0}</span>
+                        </Label>
+                      </FormGroup>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Pulsante reset */}
+              {(theme || ente || selectedFormats.length > 0) && (
+                <Button
+                  color="outline-primary"
+                  size="sm"
+                  className="w-100"
                   onClick={handleResetFilters}
                 >
-                  <Icon icon="it-refresh" size="sm" className="me-2" aria-hidden="true" />
-                  Ripristina filtri
+                  <Icon icon="it-refresh" size="xs" className="me-1" />
+                  Cancella tutti i filtri
+                </Button>
+              )}
+            </div>
+          </div>
+        </Col>
+
+        {/* Main Content */}
+        <Col lg={10} xl={10} md={9}>
+          {/* Search Bar */}
+          <div className="mb-4">
+            <Form role="search" onSubmit={handleSearch}>
+              <div className="input-group shadow-sm">
+                <span className="input-group-text bg-white border-end-0">
+                  <Icon icon="it-search" color="primary" size="sm" aria-hidden="true" />
+                </span>
+                <input
+                  type="search"
+                  id="search"
+                  className="form-control border-start-0 ps-0"
+                  placeholder="Cerca dataset per nome o descrizione..."
+                  value={searchInput}
+                  onChange={e => {
+                    setSearchInput(e.target.value);
+                    // Se l'utente cancella tutto (incluso con la X), resetta la ricerca
+                    if (e.target.value === '') {
+                      setActiveSearch('');
+                    }
+                  }}
+                  aria-label="Cerca dataset"
+                />
+                <button
+                  type="submit"
+                  className="btn btn-primary px-4"
+                  aria-label="Avvia ricerca"
+                >
+                  <Icon icon="it-search" color="white" size="sm" className="me-2" aria-hidden="true" />
+                  Cerca
                 </button>
               </div>
-            </Col>
-          </Row>
-        </Form>
-      </section>
+            </Form>
+          </div>
 
-      {/* Results Section */}
       <section className="py-3">
         {loading ? (
           <div className="text-center my-5 py-5">
@@ -328,6 +402,22 @@ export default function Catalogo() {
               <p className="text-muted mb-0">
                 <strong>{datasets.length}</strong> di <strong>{totalDatasets}</strong> dataset
               </p>
+              <div className="d-flex align-items-center gap-2">
+                <label htmlFor="sort-results" className="text-muted small mb-0">
+                  Ordina per:
+                </label>
+                <select 
+                  id="sort-results" 
+                  className="form-select form-select-sm"
+                  style={{ width: 'auto' }}
+                  value={sort} 
+                  onChange={e => setSort(e.target.value)}
+                >
+                  <option value="metadata_modified desc">Più recenti</option>
+                  <option value="title asc">Titolo (A-Z)</option>
+                  <option value="title desc">Titolo (Z-A)</option>
+                </select>
+              </div>
             </div>
             
             <Row className="g-4">
@@ -375,6 +465,8 @@ export default function Catalogo() {
           </>
         )}
       </section>
+        </Col>
+      </Row>
     </div>
   );
 }
