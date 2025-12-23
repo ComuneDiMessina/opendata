@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { 
   Card, CardBody, CardTitle, CardText, 
   Table, Button, Badge, Icon, 
@@ -12,6 +12,7 @@ import Breadcrumbs from '../components/Breadcrumbs';
 
 export default function DettaglioRisorsa() {
   const { id } = useParams();
+  const location = useLocation();
   const [resource, setResource] = useState(null);
   const [dataset, setDataset] = useState(null);
   const [data, setData] = useState(null);
@@ -56,6 +57,18 @@ export default function DettaglioRisorsa() {
     }
     loadResource();
   }, [id, page]);
+
+  // Gestisce lo scroll all'anchor dopo il caricamento
+  useEffect(() => {
+    if (!loading && location.hash) {
+      setTimeout(() => {
+        const element = document.querySelector(location.hash);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  }, [loading, location.hash]);
 
   const handleCopy = () => {
     const baseUrl = CKAN_BASE_URL.replace('/api/3/action', '');
