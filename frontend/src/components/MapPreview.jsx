@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import './MapPreview.css';
 import { Icon } from 'design-react-kit';
 
 export default function MapPreview({ resourceUrl, resourceId, packageId, onLoadError }) {
@@ -262,13 +263,43 @@ export default function MapPreview({ resourceUrl, resourceId, packageId, onLoadE
           }}
           onEachFeature={(feature, layer) => {
             if (feature.properties) {
-              // Crea popup con le proprietà
-              const popupContent = Object.entries(feature.properties)
+              // Crea popup con stile Bootstrap Italia
+              const rows = Object.entries(feature.properties)
                 .filter(([key]) => key !== 'geometry' && key !== 'geometria')
-                .map(([key, value]) => `<strong>${key}:</strong> ${value}`)
-                .join('<br/>');
-              if (popupContent) {
-                layer.bindPopup(popupContent);
+                .map(([key, value]) => {
+                  // Formatta la chiave in modo leggibile (capitalizza e rimuovi underscore)
+                  const formattedKey = key
+                    .split('_')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+                  return `
+                    <div style="margin-bottom: 12px;">
+                      <div style="font-family: 'Titillium Web', sans-serif; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.3px; color: #5c6f82; margin-bottom: 4px;">
+                        ${formattedKey}
+                      </div>
+                      <div style="font-family: 'Titillium Web', sans-serif; font-size: 0.9rem; font-weight: 600; color: #17324d;">
+                        ${value}
+                      </div>
+                    </div>
+                  `;
+                });
+              
+              if (rows.length > 0) {
+                const popupContent = `
+                  <div style="font-family: 'Titillium Web', sans-serif;">
+                    ${rows.join('')}
+                  </div>
+                `;
+                layer.bindPopup(popupContent, {
+                  maxWidth: 320,
+                  minWidth: 220,
+                  maxHeight: 400,
+                  className: 'italia-map-popup',
+                  closeButton: true,
+                  autoPan: true,
+                  autoPanPadding: [50, 50],
+                  keepInView: true
+                });
               }
             }
           }}

@@ -1,0 +1,135 @@
+/* Stile personalizzato per i popup della mappa secondo Bootstrap Italia */
+
+/* Popup container */
+.leaflet-popup-content-wrapper {
+  font-family: 'Titillium Web', sans-serif !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
+  border: none !important;
+  padding: 0 !important;
+  background-color: #ffffff !important;
+  overflow: visible !important;
+}
+
+/* Contenuto del popup */
+.leaflet-popup-content {
+  margin: 0 !important;
+  font-family: 'Titillium Web', sans-serif !important;
+  color: #17324d !important;
+  font-size: 0.875rem !important;
+  line-height: 1.5 !important;
+  min-width: 200px !important;
+}
+
+/* Freccia del popup */
+.leaflet-popup-tip {
+  background-color: #ffffff !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Bottone di chiusura - posizionato all'interno */
+.leaflet-popup-close-button {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  width: 28px !important;
+  height: 28px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #5c6f82 !important;
+  font-size: 18px !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+  padding: 0 !important;
+  border-radius: 4px !important;
+  background-color: transparent !important;
+  transition: all 0.2s ease !important;
+  z-index: 1000 !important;
+  border: none !important;
+  cursor: pointer !important;
+}
+
+.leaflet-popup-close-button:hover {
+  color: #ffffff !important;
+  background-color: #0066cc !important;
+  transform: scale(1.1) !important;
+}
+
+.leaflet-popup-close-button:active {
+  transform: scale(0.95) !important;
+}
+
+/* Stile specifico per i popup della mappa italia */
+.italia-map-popup .leaflet-popup-content-wrapper {
+  background-color: #ffffff !important;
+}
+
+/* Header del popup con padding per evitare sovrapposizione con la X */
+.leaflet-popup-content > div {
+  padding: 20px !important;
+  padding-top: 24px !important;
+  max-height: 400px !important;
+  overflow-y: auto !important;
+}
+
+/* Responsive per mobile */
+@media (max-width: 768px) {
+  /* Popup più compatto su mobile */
+  .leaflet-popup-content-wrapper {
+    max-width: calc(100vw - 40px) !important;
+    border-radius: 6px !important;
+  }
+  
+  .leaflet-popup-content {
+    min-width: 180px !important;
+    max-width: calc(100vw - 60px) !important;
+  }
+  
+  .leaflet-popup-content > div {
+    padding: 16px !important;
+    padding-top: 20px !important;
+    max-height: 60vh !important;
+    overflow-y: auto !important;
+  }
+  
+  /* Riduci font size su mobile */
+  .leaflet-popup-content > div > div {
+    margin-bottom: 10px !important;
+  }
+  
+  /* Bottone di chiusura più piccolo su mobile */
+  .leaflet-popup-close-button {
+    top: 6px !important;
+    right: 6px !important;
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 16px !important;
+  }
+  
+  /* Limita larghezza del popup */
+  .italia-map-popup.leaflet-popup {
+    max-width: calc(100vw - 40px) !important;
+  }
+}
+
+/* Scrollbar personalizzata per il popup */
+.leaflet-popup-content > div::-webkit-scrollbar {
+  width: 6px;
+}
+
+.leaflet-popup-content > div::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.leaflet-popup-content > div::-webkit-scrollbar-thumb {
+  background: #5c6f82;
+  border-radius: 3px;
+}
+
+.leaflet-popup-content > div::-webkit-scrollbar-thumb:hover {
+  background: #0066cc;
+}
+
+
