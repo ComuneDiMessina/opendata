@@ -286,10 +286,18 @@ export default function DettaglioDataset() {
                               API
                             </Badge>
                           </Link>
-                          <Badge color="success" className="text-uppercase">CSV</Badge>
-                          <Badge color="success" className="text-uppercase">TSV</Badge>
-                          <Badge color="success" className="text-uppercase">JSON</Badge>
-                          <Badge color="success" className="text-uppercase">XML</Badge>
+                          <Link to={`/risorsa/${res.id}#export-section`} className="text-decoration-none">
+                            <Badge color="success" className="text-uppercase">CSV</Badge>
+                          </Link>
+                          <Link to={`/risorsa/${res.id}#export-section`} className="text-decoration-none">
+                            <Badge color="success" className="text-uppercase">TSV</Badge>
+                          </Link>
+                          <Link to={`/risorsa/${res.id}#export-section`} className="text-decoration-none">
+                            <Badge color="success" className="text-uppercase">JSON</Badge>
+                          </Link>
+                          <Link to={`/risorsa/${res.id}#export-section`} className="text-decoration-none">
+                            <Badge color="success" className="text-uppercase">XML</Badge>
+                          </Link>
                         </>
                       )}
                     </div>
@@ -350,7 +358,10 @@ export default function DettaglioDataset() {
                       rel="noreferrer"
                     >
                       <Icon icon="it-download" size="sm" color="white" className="me-2" />
-                      Scarica risorsa
+                      {res.datastore_active && res.format 
+                        ? `Scarica risorsa (${res.format.toUpperCase()})`
+                        : 'Scarica risorsa'
+                      }
                     </a>
                     
                     <button 
@@ -361,7 +372,10 @@ export default function DettaglioDataset() {
                       }}
                     >
                       <Icon icon="it-copy" size="sm" color="primary" className="me-2" />
-                      Copia URL
+                      {res.datastore_active && res.format 
+                        ? `Copia URL (${res.format.toUpperCase()})`
+                        : 'Copia URL'
+                      }
                     </button>
                     
                     {res.datastore_active ? (

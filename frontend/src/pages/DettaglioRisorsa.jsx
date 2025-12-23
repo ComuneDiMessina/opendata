@@ -165,14 +165,17 @@ export default function DettaglioRisorsa() {
             <div>
               <h1 className="mb-2" style={{ fontSize: '2rem' }}>{resource?.name || 'Risorsa'}</h1>
               <div className="d-flex gap-2 flex-wrap align-items-center">
-                <Badge 
-                  color="secondary" 
-                  className="text-uppercase"
-                  style={{ cursor: hasDatastoreData ? 'pointer' : 'default' }}
-                  onClick={() => hasDatastoreData && document.getElementById('export-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                >
-                  {resource?.format || 'N/D'}
-                </Badge>
+                {/* Mostra il badge del formato originale solo se non è duplicato nei formati API */}
+                {(!hasDatastoreData || !['CSV', 'TSV', 'JSON', 'XML'].includes(resource?.format?.toUpperCase())) && (
+                  <Badge 
+                    color="secondary" 
+                    className="text-uppercase"
+                    style={{ cursor: hasDatastoreData ? 'pointer' : 'default' }}
+                    onClick={() => hasDatastoreData && document.getElementById('export-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                  >
+                    {resource?.format || 'N/D'}
+                  </Badge>
+                )}
                 {hasDatastoreData && (
                   <>
                     <Badge 
@@ -184,16 +187,14 @@ export default function DettaglioRisorsa() {
                       <Icon icon="it-code-circle" size="xs" color="white" />
                       API
                     </Badge>
-                    {resource?.format?.toUpperCase() !== 'CSV' && (
-                      <Badge 
-                        color="success" 
-                        className="text-uppercase"
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => document.getElementById('export-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                      >
-                        CSV
-                      </Badge>
-                    )}
+                    <Badge 
+                      color="success" 
+                      className="text-uppercase"
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => document.getElementById('export-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                    >
+                      CSV
+                    </Badge>
                     <Badge 
                       color="success" 
                       className="text-uppercase"
