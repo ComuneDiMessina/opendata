@@ -11,7 +11,7 @@ export default function DatasetCard({ dataset }) {
     <Card spacing className="card-bg shadow-sm h-100 d-flex flex-column">
       <CardBody className="d-flex flex-column flex-grow-1 p-4">
         {/* Titolo Dataset */}
-        <CardTitle tag="h3" className="mb-3" style={{ fontSize: '1.25rem', fontWeight: 500 }}>
+        <CardTitle tag="h3" className="mb-3" style={{ fontSize: '1.25rem', fontWeight: 600 }}>
           <Link 
             to={`/dataset/${dataset.name}`} 
             className="text-decoration-none"
