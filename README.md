@@ -9,9 +9,9 @@ Il frontend è scritto in React.
 
 ## Instruction
 
-Seguire le istruzioni di https://github.com/piersoft/ckan-docker
+1. Rinomina `.env.example` in `.env`
 
-1. Crea il file `.env`
+1. Personalizza il file `.env`. Assicurati, ad esempio, di sostituire gli indirizzi locali `127.0.0.1` con `dati.comune.bugliano.it`
 
 1. To build the images:
 
@@ -39,3 +39,5 @@ Seguire le istruzioni di https://github.com/piersoft/ckan-docker
 
 	docker restart ckan
 	```
+
+Maggiori informazioni nel README di @piersoft https://github.com/piersoft/ckan-docker
