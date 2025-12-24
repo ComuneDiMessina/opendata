@@ -261,7 +261,7 @@ export default function Catalogo() {
       {/* Results Section */}
       <Row className="mt-4">
         {/* Sidebar Filtri Desktop */}
-        <Col xs={12} lg={2} xl={2} md={3} className="mb-4 order-2 order-lg-1 d-none d-lg-block">
+        <Col xs={12} lg={2} xl={2} className="mb-4 order-2 order-lg-1 d-none d-lg-block">
           <div className="sticky-top" style={{ top: '1rem' }}>
             <div className="bg-light rounded-3 p-3 border">
               {/* Filtro Tema */}
@@ -365,7 +365,7 @@ export default function Catalogo() {
         </Col>
 
         {/* Main Content */}
-        <Col xs={12} lg={10} xl={10} md={9} className="order-1 order-lg-2">
+        <Col xs={12} lg={10} xl={10} className="order-1 order-lg-2">
           {/* Filtri Collapsible Mobile */}
           <div className="d-lg-none mb-4">
             <Button
@@ -482,6 +482,7 @@ export default function Catalogo() {
             </Collapse>
           </div>
 
+          <div className="catalog-content-container">
           {/* Search Bar */}
           <div className="mb-4">
             <Form role="search" onSubmit={handleSearch}>
@@ -561,7 +562,7 @@ export default function Catalogo() {
             
             <Row className="g-4">
               {datasets.map(ds => (
-                <Col md={6} lg={4} xl={4} xxl={3} key={ds.id}>
+                <Col md={6} lg={4} xl={4} className="catalog-card-col" key={ds.id}>
                   <DatasetCard dataset={ds} />
                 </Col>
               ))}
@@ -604,6 +605,7 @@ export default function Catalogo() {
           </>
         )}
       </section>
+          </div>
         </Col>
       </Row>
     </div>

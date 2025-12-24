@@ -1715,3 +1715,41 @@ body {
   }
 }
 
+/* Layout card catalogo - breakpoint custom per 1536px e 1920px */
+
+/* Per display da 1400px a 1919px: 3 colonne */
+@media (min-width: 1400px) {
+  .catalog-card-col {
+    flex: 0 0 auto;
+    width: 33.33333333%;
+    max-width: 450px; /* Limita larghezza massima per evitare stretch su display grandi */
+  }
+  
+  /* Centra il contenitore e limita alla larghezza delle card */
+  .catalog-content-container {
+    max-width: calc(3 * 450px + 2 * 1.5rem);
+    margin: 0 auto;
+  }
+}
+
+/* Per display da 1920px in su: 4 colonne */
+@media (min-width: 1920px) {
+  .catalog-card-col {
+    width: 25%;
+    max-width: 420px; /* Limita larghezza massima per evitare stretch su display grandi */
+  }
+  
+  /* Centra il contenitore e limita alla larghezza delle card */
+  .catalog-content-container {
+    max-width: calc(4 * 420px + 3 * 1.5rem);
+    margin: 0 auto;
+  }
+}
+
+/* Centra le card quando hanno max-width su schermi molto grandi */
+@media (min-width: 1400px) {
+  .catalog-card-col .card {
+    margin: 0 auto;
+  }
+}
+
