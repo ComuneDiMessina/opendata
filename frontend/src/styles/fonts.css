@@ -1,0 +1,73 @@
+/**
+ * Titillium Web Font Family
+ * Servito localmente per conformità GDPR e performance
+ * Fonte: Bootstrap Italia
+ */
+
+/* Titillium Web 300 (Light) */
+@font-face {
+  font-family: 'Titillium Web';
+  src: url('/fonts/Titillium_Web/titillium-web-v10-latin-ext_latin-300.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Titillium Web';
+  src: url('/fonts/Titillium_Web/titillium-web-v10-latin-ext_latin-300italic.woff2') format('woff2');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Titillium Web 400 (Regular) */
+@font-face {
+  font-family: 'Titillium Web';
+  src: url('/fonts/Titillium_Web/titillium-web-v10-latin-ext_latin-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Titillium Web';
+  src: url('/fonts/Titillium_Web/titillium-web-v10-latin-ext_latin-italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Titillium Web 600 (SemiBold) */
+@font-face {
+  font-family: 'Titillium Web';
+  src: url('/fonts/Titillium_Web/titillium-web-v10-latin-ext_latin-600.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Titillium Web';
+  src: url('/fonts/Titillium_Web/titillium-web-v10-latin-ext_latin-600italic.woff2') format('woff2');
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Titillium Web 700 (Bold) */
+@font-face {
+  font-family: 'Titillium Web';
+  src: url('/fonts/Titillium_Web/titillium-web-v10-latin-ext_latin-700.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Titillium Web';
+  src: url('/fonts/Titillium_Web/titillium-web-v10-latin-ext_latin-700italic.woff2') format('woff2');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
