@@ -21,6 +21,7 @@ services:
       - VITE_ACCESSIBILITY_STATEMENT_URL=${ACCESSIBILITY_STATEMENT_URL}
 
   nginx:
+    restart: unless-stopped
     container_name: ${NGINX_CONTAINER_NAME}
     build:
       context: nginx/
