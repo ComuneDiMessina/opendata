@@ -59,7 +59,7 @@ ckan config-tool $CKAN_INI "ckan.auth.create_user_via_web = false"
 # Disabilita controllo CSRF referrer per permettere accesso da reverse proxy
 ckan config-tool $CKAN_INI "WTF_CSRF_CHECK_DEFAULT = False"
 # da mettere expose_subcatalog True per cataloghi federati. per CKAN singoli lasciare commmentato
-#ckan config-tool $CKAN_INI "ckanext.dcat.expose_subcatalogs = True"
+ckan config-tool $CKAN_INI "ckanext.dcat.expose_subcatalogs = True"
 ckan config-tool $CKAN_INI "ckanext.dcat.normalize_ckan_format = true"
 ckan config-tool $CKAN_INI "geonames.username = demo"
 ckan config-tool $CKAN_INI "ckanext.dcat.clean_tags = True"
