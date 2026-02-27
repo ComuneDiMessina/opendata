@@ -554,7 +554,10 @@ export default function DettaglioRisorsa() {
                                 </Badge>
                               </td>
                               <td className="px-4 py-3">
-                                <span className="text-muted">{f.info?.notes || '—'}</span>
+                                {f.info?.notes
+                                  ? <div className="text-muted markdown-content"><ReactMarkdown>{f.info.notes}</ReactMarkdown></div>
+                                  : <span className="text-muted">—</span>
+                                }
                               </td>
                             </tr>
                           ))}
