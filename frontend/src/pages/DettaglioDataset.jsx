@@ -317,7 +317,9 @@ export default function DettaglioDataset() {
                 
                 <AccordionBody active={collapseOpen === res.id}>
                   {res.description && (
-                    <p className="text-muted small mb-3">{res.description}</p>
+                    <div className="text-muted small mb-3 markdown-content">
+                      <ReactMarkdown>{res.description}</ReactMarkdown>
+                    </div>
                   )}
                   
                   {res.datastore_active && res.format?.toLowerCase() !== 'geojson' && (res.format?.toLowerCase() !== 'json' || !res.url?.includes('geojson')) && previews[res.id] && (
