@@ -1,0 +1,8 @@
+.env
+DOCKER_CLEANUP.md
+MIGRATION.md
+PRODUCTION_SETUP.md
+ckan-20251113-new.dump
+ckan_storage.tar.gz
+frontend/node_modules/
+load_all_datastore.sh
