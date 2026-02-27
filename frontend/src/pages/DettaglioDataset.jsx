@@ -327,30 +327,49 @@ export default function DettaglioDataset() {
                         Anteprima dati
                       </h6>
                       <div className="border rounded p-3 bg-light">
-                        <div className="table-responsive" style={{ maxHeight: '400px', overflowX: 'auto', overflowY: 'auto' }}>
-                          <Table bordered size="sm" hover className="mb-0 bg-white">
-                            <thead className="table-primary" style={{ position: 'sticky', top: 0, zIndex: 10 }}>
-                              <tr>
-                                {previews[res.id].fields?.slice(1).map(f => (
-                                  <th key={f.id} className="text-nowrap px-3 py-2" style={{ minWidth: '150px' }}>
-                                    {f.id}
-                                  </th>
-                                ))}
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {previews[res.id].records?.slice(0, 5).map((row, idx) => (
-                                <tr key={idx}>
-                                  {previews[res.id].fields?.slice(1).map(f => (
-                                    <td key={f.id} className="text-nowrap px-3 py-2" style={{ minWidth: '150px' }}>
-                                      {row[f.id]}
-                                    </td>
+                        {(() => {
+                          const fields = previews[res.id].fields?.slice(1) || [];
+                          const records = previews[res.id].records || [];
+                          const cols = fields.map(f => {
+                            const maxLen = records.reduce((m, row) => Math.max(m, row[f.id] != null ? String(row[f.id]).length : 0), f.id.length);
+                            return { id: f.id, minWidth: Math.min(Math.max(maxLen * 8, 80), 320) };
+                          });
+                          return (
+                            <div className="table-responsive" style={{ maxHeight: '400px', overflowX: 'auto', overflowY: 'auto' }}>
+                              <Table bordered size="sm" hover className="mb-0 bg-white" style={{ tableLayout: 'auto' }}>
+                                <thead className="table-primary" style={{ position: 'sticky', top: 0, zIndex: 10 }}>
+                                  <tr>
+                                    {cols.map(col => (
+                                      <th key={col.id} className="text-nowrap px-3 py-2" style={{ minWidth: `${col.minWidth}px` }}>
+                                        {col.id}
+                                      </th>
+                                    ))}
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {records.slice(0, 5).map((row, idx) => (
+                                    <tr key={idx}>
+                                      {cols.map(col => {
+                                        const strVal = row[col.id] != null ? String(row[col.id]) : '';
+                                        const isLong = strVal.length > 80;
+                                        return (
+                                          <td
+                                            key={col.id}
+                                            className={`px-3 py-2${isLong ? '' : ' text-nowrap'}`}
+                                            style={isLong ? { maxWidth: '320px', whiteSpace: 'normal', wordBreak: 'break-word' } : {}}
+                                            title={isLong ? strVal : undefined}
+                                          >
+                                            {isLong ? `${strVal.slice(0, 120)}…` : strVal}
+                                          </td>
+                                        );
+                                      })}
+                                    </tr>
                                   ))}
-                                </tr>
-                              ))}
-                            </tbody>
-                          </Table>
-                        </div>
+                                </tbody>
+                              </Table>
+                            </div>
+                          );
+                        })()}
                         <div className="mt-3 pt-3 border-top">
                           <small className="text-muted d-block mb-3">
                             <Icon icon="it-info-circle" size="xs" className="me-1" />

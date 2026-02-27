@@ -348,48 +348,66 @@ export default function DettaglioRisorsa() {
                   </CardBody>
                 </Card>
 
-                <div className="table-responsive" style={{ maxHeight: '400px', overflowX: 'auto', overflowY: 'auto' }}>
-                  <Table bordered size="sm" hover className="mb-0 bg-white">
-                    <thead className="table-primary" style={{ position: 'sticky', top: 0, zIndex: 10 }}>
-                      <tr>
-                        {data.fields?.slice(1).map(f => (
-                          <th key={f.id} className="px-3 py-2" style={{ minWidth: '150px' }}>
-                            <div className="text-nowrap mb-2 fw-bold">{f.id}</div>
-                            <Input
-                              type="text"
-                              size="sm"
-                              placeholder={`Filtra ${f.id}...`}
-                              value={filters[f.id] || ''}
-                              onChange={(e) => handleFilterChange(f.id, e.target.value)}
-                              className="form-control-sm"
-                              style={{ fontSize: '0.75rem' }}
-                            />
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredRecords.length > 0 ? (
-                        filteredRecords.map((row, idx) => (
-                          <tr key={idx}>
-                            {data.fields?.slice(1).map(f => (
-                              <td key={f.id} className="text-nowrap px-3 py-2" style={{ minWidth: '150px' }}>
-                                {row[f.id]}
-                              </td>
+                {(() => {
+                  const fields = data.fields?.slice(1) || [];
+                  const records = data.records || [];
+                  const cols = fields.map(f => {
+                    const maxLen = records.reduce((m, row) => Math.max(m, row[f.id] != null ? String(row[f.id]).length : 0), f.id.length);
+                    return { id: f.id, minWidth: Math.min(Math.max(maxLen * 8, 120), 320) };
+                  });
+                  return (
+                    <div className="table-responsive" style={{ maxHeight: '70vh', overflowX: 'auto', overflowY: 'auto' }}>
+                      <Table bordered size="sm" hover className="mb-0 bg-white" style={{ tableLayout: 'auto' }}>
+                        <thead className="table-primary" style={{ position: 'sticky', top: 0, zIndex: 10 }}>
+                          <tr>
+                            {cols.map(col => (
+                              <th key={col.id} className="px-3 py-2" style={{ minWidth: `${col.minWidth}px` }}>
+                                <div className="text-nowrap mb-2 fw-bold">{col.id}</div>
+                                <Input
+                                  type="text"
+                                  size="sm"
+                                  placeholder={`Filtra ${col.id}...`}
+                                  value={filters[col.id] || ''}
+                                  onChange={(e) => handleFilterChange(col.id, e.target.value)}
+                                  className="form-control-sm"
+                                  style={{ fontSize: '0.75rem' }}
+                                />
+                              </th>
                             ))}
                           </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={data.fields?.length - 1 || 1} className="text-center py-4 text-muted">
-                            <Icon icon="it-info-circle" className="me-2" />
-                            Nessun record trovato con i filtri applicati
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </Table>
-                </div>
+                        </thead>
+                        <tbody>
+                          {filteredRecords.length > 0 ? (
+                            filteredRecords.map((row, idx) => (
+                              <tr key={idx}>
+                                {cols.map(col => {
+                                  const strVal = row[col.id] != null ? String(row[col.id]) : '';
+                                  const isLong = strVal.length > 80;
+                                  return (
+                                    <td
+                                      key={col.id}
+                                      className={`px-3 py-2${isLong ? '' : ' text-nowrap'}`}
+                                      style={isLong ? { maxWidth: '280px', whiteSpace: 'normal', wordBreak: 'break-word' } : {}}
+                                    >
+                                      {strVal}
+                                    </td>
+                                  );
+                                })}
+                              </tr>
+                            ))
+                          ) : (
+                            <tr>
+                              <td colSpan={cols.length || 1} className="text-center py-4 text-muted">
+                                <Icon icon="it-info-circle" className="me-2" />
+                                Nessun record trovato con i filtri applicati
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </Table>
+                    </div>
+                  );
+                })()}
                 
                 {/* Info risultati filtrati */}
                 {hasActiveFilters && filteredRecords.length > 0 && (
