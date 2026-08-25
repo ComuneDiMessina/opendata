@@ -1,0 +1,58 @@
+publiccodeYmlVersion: 0.5.0
+name: Catalogo Open Data
+url: https://github.com/ComuneDiMessina/opendata
+landingURL: https://dati.comune.messina.it
+releaseDate: 2026-02-27
+platforms:
+  - web
+organisation:
+  uri: urn:x-italian-pa:c_f158
+  name: Comune di Messina
+developmentStatus: beta
+softwareType: standalone/other
+description:
+  en:
+    localisedName: Open Data Catalog
+    shortDescription: React frontend for CKAN based
+    longDescription: The Open Data portal of the City of Messina
+      (dati.comune.messina.it) is an advanced platform for the management and
+      sharing of public information assets, built upon a robust CKAN backend. To
+      ensure a modern, highly responsive, and accessible user experience, the
+      system integrates a custom frontend developed entirely in React. This
+      modern architecture allows for seamless navigation, advanced dataset
+      search, and clear resource visualization.  It fosters administrative
+      transparency, civic innovation, and data reuse by citizens, developers,
+      and businesses in full compliance with national guidelines
+    features:
+      - open data
+      - api
+legal:
+  license: EUPL-1.2
+maintenance:
+  type: internal
+  contacts:
+    - name: Maurizio Mondello
+      email: m.mondello@comune.messina.it
+      affiliation: Comune di Messina
+localisation:
+  localisationReady: false
+  availableLanguages:
+    - it-IT
+dependsOn:
+  open:
+    - name: CKAN
+      version: 2.10.3
+      optional: false
+    - name: Postgres
+      version: 16-alpine
+      optional: false
+IT:
+  countryExtensionVersion: "1.0"
+  piattaforme:
+    spid: false
+    cie: false
+    anpr: false
+    pagopa: false
+    io: false
+  riuso:
+    codiceIPA: c_f158
